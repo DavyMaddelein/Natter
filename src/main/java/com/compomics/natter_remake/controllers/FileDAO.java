@@ -19,7 +19,7 @@ import java.util.zip.GZIPInputStream;
  */
 public class FileDAO {
 
-    static void writeByteArrayToDisk(byte[] fileContent, String filename, File fileOutputLocation, boolean deleteOnExit) throws NullPointerException, IOException {
+    static RovFile writeByteArrayToDisk(byte[] fileContent, String filename, File fileOutputLocation, boolean deleteOnExit) throws NullPointerException, IOException {
         StringBuilder outputString = new StringBuilder();
         if (!fileOutputLocation.exists()) {
             if (!fileOutputLocation.mkdir()) {
@@ -42,7 +42,7 @@ public class FileDAO {
         } else {
             outputString.append(filename);
         }
-        File outputFile = new File(outputString.toString());
+        RovFile outputFile = new RovFile(outputString.toString());
         OutputStream out = new FileOutputStream(outputFile);
         try {
             out.write(fileContent);
@@ -52,18 +52,19 @@ public class FileDAO {
             }
             out.close();
         }
+        return outputFile;
     }
 
-    static void unzipAndWriteByteArrayToDisk(byte[] zippedFileContent, File fileOutputLocation) throws IOException {
-        writeByteArrayToDisk(unzipByteArray(zippedFileContent), null, fileOutputLocation, true);
+    static RovFile unzipAndWriteByteArrayToDisk(byte[] zippedFileContent, File fileOutputLocation) throws IOException {
+        return writeByteArrayToDisk(unzipByteArray(zippedFileContent), null, fileOutputLocation, true);
     }
 
-    static void unzipAndWriteByteArrayToDisk(byte[] zippedFileContent, String filename, File fileOutputLocation) throws IOException {
-        writeByteArrayToDisk(unzipByteArray(zippedFileContent), filename, fileOutputLocation, true);
+    static RovFile unzipAndWriteByteArrayToDisk(byte[] zippedFileContent, String filename, File fileOutputLocation) throws IOException {
+        return writeByteArrayToDisk(unzipByteArray(zippedFileContent), filename, fileOutputLocation, true);
     }
 
-    static void unzipAndWriteByteArrayToDisk(byte[] zippedFileContent, String filename, File fileOutputLocation, boolean deleteOnExit) throws IOException {
-        writeByteArrayToDisk(unzipByteArray(zippedFileContent), filename, fileOutputLocation, deleteOnExit);
+    static RovFile unzipAndWriteByteArrayToDisk(byte[] zippedFileContent, String filename, File fileOutputLocation, boolean deleteOnExit) throws IOException {
+        return writeByteArrayToDisk(unzipByteArray(zippedFileContent), filename, fileOutputLocation, deleteOnExit);
     }
 
     static byte[] unzipByteArray(byte[] fileContent) throws IOException {

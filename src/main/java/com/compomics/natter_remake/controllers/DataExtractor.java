@@ -10,6 +10,8 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.Reader;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import javax.swing.JOptionPane;
@@ -30,7 +32,7 @@ public class DataExtractor {
     public static List<RovFile> extractDataInMem(Project project) throws SQLException, ParserConfigurationException, IOException, XMLStreamException {
         List<RovFile> rovFiles = DbDAO.downloadRovFilesInMemoryForProject(project);
         for (RovFile file : rovFiles) {
-            parseRovFile(new ByteArrayInputStream(file.getFileContent()));
+            parseRovFile(new InputStreamReader(new ByteArrayInputStream(file.getFileContent())));
         }
         return rovFiles;
     }
@@ -40,7 +42,7 @@ public class DataExtractor {
         List<RovFile> rovFiles = new ArrayList<RovFile>(quantitationFileIds.size());
         for (Integer quantitation_fileid : quantitationFileIds) {
             RovFile rovFile = DbDAO.getQuantitationFileForQuantitationFileId(quantitation_fileid);
-            parseRovFile(new ByteArrayInputStream(rovFile.getFileContent()));
+            parseRovFile(new InputStreamReader(new ByteArrayInputStream(rovFile.getFileContent())));
         }
         return rovFiles;
     }
@@ -84,15 +86,15 @@ public class DataExtractor {
 
     //TODO write per read to disk or per section or per buffer filled?
     private static RovFileData parseRovFile(File rovFile) throws ParserConfigurationException, IOException, XMLStreamException {
-        FileInputStream rovFileStream = new FileInputStream(rovFile);
-        RovFileData data = DataExtractor.parseRovFile(rovFileStream);
-        rovFileStream.close();
+        InvalidXMLCharacterFilterReader rovFileStreamReader = new InvalidXMLCharacterFilterReader(new InputStreamReader(new FileInputStream(rovFile.getAbsolutePath()),"UTF-8"));
+        RovFileData data = DataExtractor.parseRovFile(rovFileStreamReader);
+        rovFileStreamReader.close();
         return data;
     }
 
-    private static RovFileData parseRovFile(InputStream stream) throws ParserConfigurationException, IOException, XMLStreamException {
+    private static RovFileData parseRovFile(Reader reader) throws ParserConfigurationException, IOException, XMLStreamException {
         XMLInputFactory xmlParseFactory = XMLInputFactory.newInstance();
-        XMLEventReader xmlReader = xmlParseFactory.createXMLEventReader(stream);
+        XMLEventReader xmlReader = xmlParseFactory.createXMLEventReader(reader);
         RovFileXMLParser xmlParser = new RovFileXMLParser(xmlReader);
         return xmlParser.getRovFileData();
 

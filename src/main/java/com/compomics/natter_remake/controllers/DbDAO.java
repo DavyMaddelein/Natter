@@ -18,12 +18,12 @@ import java.util.ArrayList;
  */
 public class DbDAO {
 
-    public static List<RovFile> downloadRovFilesInMemoryForProject(Project project) throws SQLException {
+    public static List<RovFile> downloadRovFilesInMemoryForProject(Project project) throws SQLException, IOException {
         List<RovFile> files = new ArrayList<RovFile>();
         PreparedStatement stat = DbConnectionController.getConnection().prepareStatement("select qf.filename, qf.file from (select distinct q.l_quantitation_fileid as temp from identification as i, spectrum as f , identification_to_quantitation as t, quantitation_group as q where i.l_spectrumid = f.spectrumid and f.l_projectid = " + project.getProjectId() + " and i.identificationid = t.l_identificationid and t.l_quantitation_groupid = q.quantitation_groupid) as linker, quantitation_file as qf where linker.temp = qf.quantitation_fileid");
         ResultSet rs = stat.executeQuery();
         while (rs.next()) {
-            files.add(new RovFile(rs.getString("filename"), rs.getBytes("file")));
+            files.add(new RovFile(rs.getString("filename"), FileDAO.unzipByteArray(rs.getBytes("file"))));
         }
         rs.close();
         stat.close();
@@ -48,7 +48,7 @@ public class DbDAO {
         while (rs.next()) {
             rovFile = new RovFile(rs.getString("filename"), rs.getBytes("file"));
             files.add(rovFile);
-            FileDAO.unzipAndWriteByteArrayToDisk(rovFile.getFileContent(), rovFile.getName(), rovFileOutputLocationFolder, deleteOnExit);
+            files.add(FileDAO.unzipAndWriteByteArrayToDisk(rovFile.getFileContent(), rovFile.getName(), rovFileOutputLocationFolder, deleteOnExit));
         }
         rs.close();
         stat.close();
@@ -56,7 +56,7 @@ public class DbDAO {
     }
 
     public static RovFile getQuantitationFileForQuantitationFileId(Integer quantitation_fileid) throws SQLException {
-        PreparedStatement stat = DbConnectionController.getConnection().prepareStatement("select filename,file from quantitation_file where quantitatation_fileid = " + quantitation_fileid);
+        PreparedStatement stat = DbConnectionController.getConnection().prepareStatement("select filename,file from quantitation_file where quantitation_fileid = " + quantitation_fileid);
         ResultSet rs = stat.executeQuery();
         rs.next();
         RovFile rovFile = new RovFile(rs.getString("filename"), rs.getBytes("file"));
@@ -67,7 +67,7 @@ public class DbDAO {
 
     public static List<Integer> getQuantitationFileIdsForProject(Project project) throws SQLException {
         List<Integer> quantitationFileIds = new ArrayList<Integer>();
-        PreparedStatement stat = DbConnectionController.getConnection().prepareStatement("select distinct qg.l_quantitation_fileid as fileid from quantitation_group as qg, identification_to_quantitation as itq (select identification.identificationid as result from identification,spectrum where l_spectrumid = spectrumid and l_projectid = " + project.getProjectId() + ") as ident_result where ident_result.result = itq.l_identificationid and qg.quantitation_groupid = idt.l_quantitation_groupid");
+        PreparedStatement stat = DbConnectionController.getConnection().prepareStatement("select distinct qg.l_quantitation_fileid as fileid from quantitation_group as qg, identification_to_quantitation as itq, (select identification.identificationid as result from identification,spectrum where l_spectrumid = spectrumid and l_projectid = " + project.getProjectId() + ") as ident_result where ident_result.result = itq.l_identificationid and qg.quantitation_groupid = itq.l_quantitation_groupid");
         ResultSet rs = stat.executeQuery();
         while (rs.next()) {
             quantitationFileIds.add(rs.getInt("fileid"));
