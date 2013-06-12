@@ -1,7 +1,3 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package com.compomics.natter_remake.controllers;
 
 import java.io.FilterReader;
@@ -18,35 +14,34 @@ public class InvalidXMLCharacterFilterReader extends FilterReader {
         super(in);
     }
 
+    @Override
     public int read() throws IOException {
         char[] buf = new char[1];
-        int result = read(buf, 0, 1);
+        int result = in.read(buf, 0, 1);
         if (result == -1) {
             return -1;
+        } else if (isBadXMLChar(buf[0])) {
+            return (int) '-';
         } else {
-            System.out.print(buf[0]);
             return (int) buf[0];
         }
     }
 
+    @Override
     public int read(char[] buf, int from, int len) throws IOException {
+        StringBuilder builder = new StringBuilder();
         int count = 0;
-        while (count == 0) {
-            count = in.read(buf, from, len);
-            if (count == -1) {
-                return -1;
-            }
-
-            int last = from;
-            for (int i = from; i < from + count; i++) {
-                if (!isBadXMLChar(buf[i])) {
-                    System.out.println(buf[i]);
-                    buf[last++] = buf[i];
-                }
-            }
-
-            count = last - from;
+        count = in.read(buf, from, len);
+        if (count == -1) {
+            return -1;
         }
+
+        for (int i = 0; i < buf.length; i++) {
+            if (!isBadXMLChar(buf[i])) {
+                builder.append(buf[i]);
+            }
+        }
+        buf = builder.toString().toCharArray();
         return count;
     }
 

@@ -12,6 +12,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 import java.util.zip.GZIPInputStream;
+import org.apache.commons.io.IOUtils;
 
 /**
  *
@@ -19,6 +20,8 @@ import java.util.zip.GZIPInputStream;
  */
 public class FileDAO {
 
+    public static final File NATTERTEMPDIR =  new File(System.getProperty("java.io.tmpdir")+"/natter_rov_files");
+    
     static RovFile writeByteArrayToDisk(byte[] fileContent, String filename, File fileOutputLocation, boolean deleteOnExit) throws NullPointerException, IOException {
         StringBuilder outputString = new StringBuilder();
         if (!fileOutputLocation.exists()) {
@@ -26,7 +29,6 @@ public class FileDAO {
                 throw new IOException("could not create output folder");
             }
         }
-
         if (fileOutputLocation.isDirectory()) {
             outputString.append(fileOutputLocation.getAbsolutePath()).append("\\");
         } else if (fileOutputLocation.getParent() == null) {
@@ -35,13 +37,10 @@ public class FileDAO {
         } else {
             outputString.append(fileOutputLocation.getParent()).append("\\");
         }
-        if (filename == null) {
-            Date date = new Date();
-            SimpleDateFormat sdf = new SimpleDateFormat("MM_dd_yyyy_h_mm_ss");
-            outputString.append(sdf.format(date));
-        } else {
-            outputString.append(filename);
-        }
+
+        Date date = new Date();
+        SimpleDateFormat sdf = new SimpleDateFormat("MM_dd_yyyy_h_mm_ss");
+        outputString.append(sdf.format(date));
         RovFile outputFile = new RovFile(outputString.toString());
         OutputStream out = new FileOutputStream(outputFile);
         try {
@@ -68,16 +67,13 @@ public class FileDAO {
     }
 
     static byte[] unzipByteArray(byte[] fileContent) throws IOException {
-        ByteArrayOutputStream out = new ByteArrayOutputStream();
-        GZIPInputStream zis = new GZIPInputStream(new ByteArrayInputStream(fileContent));
-        byte[] buffer = new byte[1024];
-
-        while (zis.read(buffer) != -1) {
-            out.write(buffer);
-        }
-        out.flush();
-        out.close();
-        return out.toByteArray();
+        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+        
+        //this method uses a buffer internally
+        IOUtils.copy(new GZIPInputStream(new ByteArrayInputStream(fileContent)), byteArrayOutputStream);
+        
+        return byteArrayOutputStream.toByteArray();
+   
     }
 
     public static void writeExtractedDataToDisk(RovFile data) {
@@ -85,12 +81,8 @@ public class FileDAO {
     }
 
     public static void writeExtractedDataToDisk(List<RovFile> rovFiles) {
-        for (RovFile rovFile : rovFiles){
+        for (RovFile rovFile : rovFiles) {
             writeExtractedDataToDisk(rovFile);
         }
-    }
-    
-    public static void emptyNatterTempFolder(){
-        
     }
 }

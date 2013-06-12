@@ -9,12 +9,10 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import javax.swing.JOptionPane;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.stream.XMLEventReader;
 import javax.xml.stream.XMLInputFactory;
@@ -27,7 +25,6 @@ import org.xml.sax.SAXException;
  * @author Davy
  */
 public class DataExtractor {
-
 
     public static List<RovFile> extractDataInMem(Project project) throws SQLException, ParserConfigurationException, IOException, XMLStreamException {
         List<RovFile> rovFiles = DbDAO.downloadRovFilesInMemoryForProject(project);
@@ -59,16 +56,19 @@ public class DataExtractor {
             @Override
             public void run() {
                 try {
-                    FileUtils.deleteDirectory(new File(System.getProperty("java.io.tmpdir") + "/natter_output_files"));
+                    File natterSaveLocation = new File(System.getProperty("java.io.tmpdir") + "/natter_output_files");
+                    if (natterSaveLocation.exists()) {
+                        FileUtils.deleteDirectory(natterSaveLocation);
+                    }
                 } catch (IOException ex) {
-                    JOptionPane.showMessageDialog(null, "could not remove temporary folder natter_output_files");
+                    ex.printStackTrace();
                 }
             }
         });
-        extractDataToLocal(natterSaveLocation,project);
+        extractDataToLocal(project,natterSaveLocation);
     }
 
-    public static void extractDataToLocal(File rovFileOutputLocationFolder,Project project) throws SQLException, FileNotFoundException, NullPointerException, IOException, ParserConfigurationException, SAXException, XMLStreamException {
+    public static void extractDataToLocal(Project project,File rovFileOutputLocationFolder) throws SQLException, FileNotFoundException, NullPointerException, IOException, ParserConfigurationException, SAXException, XMLStreamException {
         List<RovFile> filesToRun = DbDAO.downloadRovFilesLocallyForProject(project, rovFileOutputLocationFolder);
         for (RovFile file : filesToRun) {
             file.addParsedData(parseRovFile(file));
@@ -76,7 +76,7 @@ public class DataExtractor {
         FileDAO.writeExtractedDataToDisk(filesToRun);
     }
 
-    public static void extractDataToLocalLowMem(File rovFileOutputLocationFolder,Project project) throws SQLException, FileNotFoundException, NullPointerException, IOException, ParserConfigurationException, SAXException, XMLStreamException {
+    public static void extractDataToLocalLowMem(File rovFileOutputLocationFolder, Project project) throws SQLException, FileNotFoundException, NullPointerException, IOException, ParserConfigurationException, SAXException, XMLStreamException {
         List<RovFile> filesToRun = DbDAO.downloadRovFilesLocallyForProject(project, rovFileOutputLocationFolder);
         for (RovFile file : filesToRun) {
             file.addParsedData(parseRovFile(file));
@@ -86,7 +86,7 @@ public class DataExtractor {
 
     //TODO write per read to disk or per section or per buffer filled?
     private static RovFileData parseRovFile(File rovFile) throws ParserConfigurationException, IOException, XMLStreamException {
-        InvalidXMLCharacterFilterReader rovFileStreamReader = new InvalidXMLCharacterFilterReader(new InputStreamReader(new FileInputStream(rovFile.getAbsolutePath()),"UTF-8"));
+        InvalidXMLCharacterFilterReader rovFileStreamReader = new InvalidXMLCharacterFilterReader(new InputStreamReader(new FileInputStream(rovFile.getAbsolutePath()), "UTF-8"));
         RovFileData data = DataExtractor.parseRovFile(rovFileStreamReader);
         rovFileStreamReader.close();
         return data;

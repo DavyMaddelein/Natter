@@ -60,7 +60,7 @@ public class RovFileXMLParser {
             if (rovFileLine.isStartElement()) {
                 XMLAttributes = rovFileLine.asStartElement().getAttributes();
                 String val = null;
-                //find way to guarantee order of XMLAttributes
+                //find way to guarantee order of XMLAttributes                
                 while (XMLAttributes.hasNext()) {
                     Attribute attribute = XMLAttributes.next();
                     if (attribute.getName().getLocalPart().equalsIgnoreCase("val")) {
@@ -71,28 +71,24 @@ public class RovFileXMLParser {
                         } else {
                             data.setProteaseUsed(attribute.getValue());
                         }
-                        val = null;
                     } else if (attribute.getValue().equalsIgnoreCase("DISTILLERVERSION")) {
                         if (val != null) {
                             data.setDistillerVersion(val);
                         } else {
                             data.setDistillerVersion(XMLAttributes.next().getValue());
                         }
-                        val = null;
                     } else if (attribute.getValue().equalsIgnoreCase("QUANTITATION")) {
                         if (val != null) {
                             data.setQuantitationMethod(val);
                         } else {
                             data.setQuantitationMethod(XMLAttributes.next().getValue());
                         }
-                        val = null;
                     } else if (attribute.getValue().equalsIgnoreCase("IONSCORECUTOFF")) {
                         if (val != null) {
                             data.setCutOff(Integer.parseInt(val));
                         } else {
                             data.setCutOff(Integer.parseInt(XMLAttributes.next().getValue()));
                         }
-                        val = null;
                         //todo find experiment with multiple mods
                     } else if (attribute.getValue().equalsIgnoreCase("MODS")) {
                         if (val != null) {
@@ -100,24 +96,24 @@ public class RovFileXMLParser {
                         } else {
                             data.addMod(XMLAttributes.next().getValue());
                         }
-                        val = null;
                     } else if (attribute.getValue().equalsIgnoreCase("FILENAME")) {
                         if (val != null) {
                             data.setFileName(val);
                         } else {
                             data.setFileName(XMLAttributes.next().getValue());
                         }
-                        val = null;
                     }
                 }
             }
             if (rovFileLine.isEndElement()) {
-                break;
+                if (rovFileLine.asEndElement().getName().getLocalPart().equalsIgnoreCase("header")) {
+                    break;
+                }
             }
         }
     }
 
-    private void parseCounters(XMLEvent rovFileLine) {
+    private void parseCounters(XMLEvent rovFileLine) throws XMLStreamException {
         XMLAttributes = rovFileLine.asStartElement().getAttributes();
         while (XMLAttributes.hasNext()) {
             Attribute attribute = XMLAttributes.next();
@@ -307,7 +303,7 @@ public class RovFileXMLParser {
         return partner;
     }
 
-    private void parseMatchesForPartner(PeptidePartner peptidePartner) {
+    private void parseMatchesForPartner(PeptidePartner peptidePartner) throws XMLStreamException {
         XMLAttributes = rovFileLine.asStartElement().getAttributes();
         while (XMLAttributes.hasNext()) {
             Attribute attribute = XMLAttributes.next();
@@ -358,7 +354,7 @@ public class RovFileXMLParser {
         return chargeState;
     }
 
-    private Ratio parseOriginalRatioForPeptideMatch() {
+    private Ratio parseOriginalRatioForPeptideMatch() throws XMLStreamException {
         XMLAttributes = rovFileLine.asStartElement().getAttributes();
         Ratio ratio = new Ratio();
         while (XMLAttributes.hasNext()) {
@@ -377,7 +373,7 @@ public class RovFileXMLParser {
         return ratio;
     }
 
-    private Ratio parseRatioForPartners() {
+    private Ratio parseRatioForPartners() throws XMLStreamException {
         XMLAttributes = rovFileLine.asStartElement().getAttributes();
         Ratio ratio = new Ratio();
         while (XMLAttributes.hasNext()) {
@@ -455,7 +451,7 @@ public class RovFileXMLParser {
         return protein;
     }
 
-    private void parseXICForPartner(XMLEvent rovFileLine, IntensityList intensitiesForPartnter) {
+    private void parseXICForPartner(XMLEvent rovFileLine, IntensityList intensitiesForPartnter) throws XMLStreamException {
         XMLAttributes = rovFileLine.asStartElement().getAttributes();
         while (XMLAttributes.hasNext()) {
             Attribute attribute = XMLAttributes.next();
@@ -473,7 +469,7 @@ public class RovFileXMLParser {
         }
     }
 
-    private ScanRange parseRangesForPartner() {
+    private ScanRange parseRangesForPartner() throws XMLStreamException {
         XMLAttributes = rovFileLine.asStartElement().getAttributes();
         ScanRange scanRange = new ScanRange();
         while (XMLAttributes.hasNext()) {
