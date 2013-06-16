@@ -57,6 +57,7 @@ public class RovFileXMLParser {
     private void parseHeader(XMLEventReader rovFileXMLReader) throws XMLStreamException {
         while (rovFileXMLReader.hasNext()) {
             rovFileLine = rovFileXMLReader.nextEvent();
+            System.out.println(rovFileLine.toString());
             if (rovFileLine.isStartElement()) {
                 XMLAttributes = rovFileLine.asStartElement().getAttributes();
                 String val = null;
