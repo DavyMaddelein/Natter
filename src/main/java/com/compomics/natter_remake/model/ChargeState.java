@@ -29,4 +29,22 @@ public class ChargeState {
     public void addScan(Scan scan) {
         scansForCharge.add(scan);
     }
+
+    public double getCorrelation() {
+        return correlation;
+    }
+
+    public double getBucketWitdh() {
+        return bucketWitdh;
+    }
+
+    public double getTotalIntensity() {
+        return totalIntensity;
+    }
+
+    public List<Scan> getScansForCharge() {
+        return scansForCharge;
+    }
+    
+    
 }

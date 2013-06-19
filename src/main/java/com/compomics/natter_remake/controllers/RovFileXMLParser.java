@@ -57,7 +57,6 @@ public class RovFileXMLParser {
     private void parseHeader(XMLEventReader rovFileXMLReader) throws XMLStreamException {
         while (rovFileXMLReader.hasNext()) {
             rovFileLine = rovFileXMLReader.nextEvent();
-            System.out.println(rovFileLine.toString());
             if (rovFileLine.isStartElement()) {
                 XMLAttributes = rovFileLine.asStartElement().getAttributes();
                 String val = null;
@@ -67,38 +66,38 @@ public class RovFileXMLParser {
                     if (attribute.getName().getLocalPart().equalsIgnoreCase("val")) {
                         val = attribute.getValue();
                     } else if (attribute.getValue().equalsIgnoreCase("CLE")) {
-                        if (val != null) {
-                            data.setProteaseUsed(val);
+                        if (val != null || !val.isEmpty()) {
+                            data.getHeader().setProteaseUsed(val);
                         } else {
-                            data.setProteaseUsed(attribute.getValue());
+                            data.getHeader().setProteaseUsed(attribute.getValue());
                         }
                     } else if (attribute.getValue().equalsIgnoreCase("DISTILLERVERSION")) {
-                        if (val != null) {
-                            data.setDistillerVersion(val);
+                        if (val != null || !val.isEmpty()) {
+                            data.getHeader().setDistillerVersion(val);
                         } else {
-                            data.setDistillerVersion(XMLAttributes.next().getValue());
+                            data.getHeader().setDistillerVersion(XMLAttributes.next().getValue());
                         }
                     } else if (attribute.getValue().equalsIgnoreCase("QUANTITATION")) {
-                        if (val != null) {
-                            data.setQuantitationMethod(val);
+                        if (val != null || !val.isEmpty()) {
+                            data.getHeader().setQuantitationMethod(val);
                         } else {
-                            data.setQuantitationMethod(XMLAttributes.next().getValue());
+                            data.getHeader().setQuantitationMethod(XMLAttributes.next().getValue());
                         }
                     } else if (attribute.getValue().equalsIgnoreCase("IONSCORECUTOFF")) {
-                        if (val != null) {
-                            data.setCutOff(Integer.parseInt(val));
+                         if (val != null || !val.isEmpty()) {
+                            data.getHeader().setCutOff(Integer.parseInt(val));
                         } else {
-                            data.setCutOff(Integer.parseInt(XMLAttributes.next().getValue()));
+                            data.getHeader().setCutOff(Integer.parseInt(XMLAttributes.next().getValue()));
                         }
                         //todo find experiment with multiple mods
                     } else if (attribute.getValue().equalsIgnoreCase("MODS")) {
-                        if (val != null) {
-                            data.addMod(val);
+                        if (val != null || !val.isEmpty()) {
+                            data.getHeader().addMod(val);
                         } else {
-                            data.addMod(XMLAttributes.next().getValue());
+                            data.getHeader().addMod(XMLAttributes.next().getValue());
                         }
                     } else if (attribute.getValue().equalsIgnoreCase("FILENAME")) {
-                        if (val != null) {
+                        if (val != null || !val.isEmpty()) {
                             data.setFileName(val);
                         } else {
                             data.setFileName(XMLAttributes.next().getValue());
@@ -119,11 +118,11 @@ public class RovFileXMLParser {
         while (XMLAttributes.hasNext()) {
             Attribute attribute = XMLAttributes.next();
             if (attribute.getName().getLocalPart().equalsIgnoreCase("peptideCount")) {
-                data.setFoundPeptides(Integer.parseInt(attribute.getValue()));
+                data.getHeader().setFoundPeptides(Integer.parseInt(attribute.getValue()));
             } else if (attribute.getName().getLocalPart().equalsIgnoreCase("peptideMatchCount")) {
-                data.setMatchedPeptides(Integer.parseInt(attribute.getValue()));
+                data.getHeader().setMatchedPeptides(Integer.parseInt(attribute.getValue()));
             } else if (attribute.getName().getLocalPart().equalsIgnoreCase("proteinHitCount")) {
-                data.setMatchedProteins(Integer.parseInt(attribute.getValue()));
+                data.getHeader().setMatchedProteins(Integer.parseInt(attribute.getValue()));
             }
         }
     }

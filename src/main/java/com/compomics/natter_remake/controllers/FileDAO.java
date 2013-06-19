@@ -1,6 +1,8 @@
 package com.compomics.natter_remake.controllers;
 
+import com.compomics.natter_remake.model.PeptideGroup;
 import com.compomics.natter_remake.model.RovFile;
+import com.compomics.natter_remake.model.RovFileData;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -76,8 +78,11 @@ public class FileDAO {
    
     }
 
-    public static void writeExtractedDataToDisk(RovFile data) {
-        throw new UnsupportedOperationException("Not supported yet.");
+    public static void writeExtractedDataToDisk(RovFile rovFile) {
+        RovFileData rovFileData = rovFile.getParsedData();
+        writeHeaderToDisk(rovFile.getHeader);
+        for (PeptideGroup aPeptideGroup : rovFileData.getPeptideGroups()){
+        }
     }
 
     public static void writeExtractedDataToDisk(List<RovFile> rovFiles) {

@@ -34,4 +34,26 @@ public class Protein {
     public void addLinkToPeptideMatch(PeptideMatch peptideMatch) {
         peptideMatches.add(peptideMatch);
     }
+
+    public String getAccession() {
+        return accession;
+    }
+
+    public int getScore() {
+        return score;
+    }
+
+    public double getMass() {
+        return mass;
+    }
+
+    public Ratio getRatio() {
+        return ratio;
+    }
+
+    public List<PeptideMatch> getPeptideMatches() {
+        return peptideMatches;
+    }
+    
+    
 }

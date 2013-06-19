@@ -20,4 +20,11 @@ public class UserSecondGuesser {
         
         return unzippedXML;
     }
+    
+    public static boolean isFileReadable(File rovFile){
+        boolean fileIsReadable = false;
+    
+        
+        return fileIsReadable;
+    }
 }

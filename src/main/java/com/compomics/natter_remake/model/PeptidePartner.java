@@ -88,4 +88,26 @@ public class PeptidePartner {
     public void addRange(ScanRange scanRange) {
         this.scanRange = scanRange;
     }
+
+    public String getPeptideSequence() {
+        return peptideSequence;
+    }
+
+    public List<Peptide> getPeptidesLinkedToPartner() {
+        return peptidesLinkedToPartner;
+    }
+
+    public double getMassOverCharge() {
+        return massOverCharge;
+    }
+
+    public List<Intensity> getIntensitiesForPartner() {
+        return IntensitiesForPartner;
+    }
+
+    public ScanRange getScanRange() {
+        return scanRange;
+    }
+    
+    
 }

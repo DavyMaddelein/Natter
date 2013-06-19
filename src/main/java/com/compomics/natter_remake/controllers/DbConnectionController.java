@@ -13,7 +13,7 @@ public class DbConnectionController {
     private static Connection connection;
 
     public static Connection createConnection(String username, String password, String url,int port, String database) throws SQLException {
-        DbConnectionController instance = new DbConnectionController(username, password, url,port, database);
+        DbConnectionController dbConnectionController = new DbConnectionController(username, password, url,port, database);
         return DbConnectionController.getConnection();
     }
     

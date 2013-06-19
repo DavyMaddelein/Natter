@@ -18,6 +18,7 @@ import javax.xml.stream.XMLEventReader;
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamException;
 import org.apache.commons.io.FileUtils;
+import org.apache.log4j.Logger;
 import org.xml.sax.SAXException;
 
 /**
@@ -25,12 +26,13 @@ import org.xml.sax.SAXException;
  * @author Davy
  */
 public class DataExtractor {
+    private static final Logger logger = Logger.getLogger(DataExtractor.class);
 
     public static List<RovFile> extractDataInMem(Project project) throws SQLException, ParserConfigurationException, IOException, XMLStreamException {
         InputStreamReader rovFileInputStreamReader;
         List<RovFile> rovFiles = DbDAO.downloadRovFilesInMemoryForProject(project);
         for (RovFile file : rovFiles) {
-            rovFileInputStreamReader = new InputStreamReader(new ByteArrayInputStream(file.getFileContent()));
+            rovFileInputStreamReader = new InputStreamReader(new ByteArrayInputStream(file.getFileContent()),"UTF-8");
             parseRovFile(rovFileInputStreamReader);
             rovFileInputStreamReader.close();
         }
@@ -43,7 +45,7 @@ public class DataExtractor {
         List<RovFile> rovFiles = new ArrayList<RovFile>(quantitationFileIds.size());
         for (Integer quantitation_fileid : quantitationFileIds) {
             RovFile rovFile = DbDAO.getQuantitationFileForQuantitationFileId(quantitation_fileid);
-            rovFileInputStreamReader = new InputStreamReader(new ByteArrayInputStream(rovFile.getFileContent()));
+            rovFileInputStreamReader = new InputStreamReader(new ByteArrayInputStream(rovFile.getFileContent()),"UTF-8");
             parseRovFile(rovFileInputStreamReader);
         }
         return rovFiles;
@@ -66,7 +68,7 @@ public class DataExtractor {
                         FileUtils.deleteDirectory(natterSaveLocation);
                     }
                 } catch (IOException ex) {
-                    ex.printStackTrace();
+                    logger.error(ex);
                 }
             }
         });

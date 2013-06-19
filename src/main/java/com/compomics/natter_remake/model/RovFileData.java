@@ -11,17 +11,10 @@ import java.util.List;
 public class RovFileData {
 
     private String fileName;
-    private String proteaseUsed;
-    private int cutOff;
-    private String distillerVersion;
-    private List<String> modsUsed;
-    private String quantitationMethod;
-    private int matchedPeptides;
-    private int matchedProteins;
-    private int foundPeptides;
     private List<PeptideGroup> peptideGroups = new ArrayList<PeptideGroup>();
     private List<PeptideMatch> peptideMatchList = new ArrayList<PeptideMatch>(30);
     private List<Protein> proteinHits = new ArrayList<Protein>();
+    private Header header = new Header();
 
     public String getFileName() {
         return fileName;
@@ -31,74 +24,7 @@ public class RovFileData {
         this.fileName = fileName;
     }
 
-    public String getProteaseUsed() {
-        return proteaseUsed;
-    }
-
-    public void setProteaseUsed(String proteaseUsed) {
-        this.proteaseUsed = proteaseUsed;
-    }
-
-    public int getCutOff() {
-        return cutOff;
-    }
-
-    public void setCutOff(int cutOff) {
-        this.cutOff = cutOff;
-    }
-
-    public String getDistillerVersion() {
-        return distillerVersion;
-    }
-
-    public void setDistillerVersion(String distillerVersion) {
-        this.distillerVersion = distillerVersion;
-    }
-
-    public List<String> getModsUsed() {
-        return Collections.unmodifiableList(modsUsed);
-    }
-
-    public void addMod(String mod) {
-        modsUsed.add(mod);
-    }
-
-    public void setModsUsed(List<String> modsUsed) {
-        this.modsUsed = modsUsed;
-    }
-
-    public String getQuantitationMethod() {
-        return quantitationMethod;
-    }
-
-    public void setQuantitationMethod(String quantitationMethod) {
-        this.quantitationMethod = quantitationMethod;
-    }
-
-    public int getMatchedPeptides() {
-        return matchedPeptides;
-    }
-
-    public void setMatchedPeptides(int matchedPeptides) {
-        this.matchedPeptides = matchedPeptides;
-    }
-
-    public int getMatchedProteins() {
-        return matchedProteins;
-    }
-
-    public void setMatchedProteins(int matchedProteins) {
-        this.matchedProteins = matchedProteins;
-    }
-
-    public int getFoundPeptides() {
-        return foundPeptides;
-    }
-
-    public void setFoundPeptides(int foundPeptides) {
-        this.foundPeptides = foundPeptides;
-    }
-
+    
     public void setPeptideGroups(List<PeptideGroup> parsedPeptideGroups) {
         peptideGroups.addAll(parsedPeptideGroups);
     }
@@ -117,5 +43,17 @@ public class RovFileData {
 
     public void addProteinHit(Protein parsedProteinHit) {
         proteinHits.add(parsedProteinHit);
+    }
+    
+     public List<PeptideMatch> getPeptideMatchList() {
+        return Collections.unmodifiableList(peptideMatchList);
+    }
+
+    public List<Protein> getProteinHits() {
+        return Collections.unmodifiableList(proteinHits);
+    }
+
+    public Header getHeader() {
+        return header;
     }
 }

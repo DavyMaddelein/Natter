@@ -1,16 +1,12 @@
 package com.compomics.natter_remake.View;
 
 import com.compomics.natter_remake.controllers.DataExtractor;
-import com.compomics.natter_remake.controllers.DbConnectionController;
+import com.compomics.natter_remake.controllers.DbDAO;
 import com.compomics.natter_remake.controllers.FileDAO;
 import com.compomics.natter_remake.model.Project;
 import java.io.File;
 import java.io.IOException;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JFileChooser;
@@ -128,6 +124,7 @@ public class ProjectSelectorFrame extends javax.swing.JFrame {
     private void runButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_runButtonActionPerformed
         try {
             for (Object project : projectList.getSelectedValues()) {
+                //todo make this work with method selection
                 FileDAO.writeExtractedDataToDisk(DataExtractor.extractDataInMem((Project) project));
             }
         } catch (SQLException ex) {
@@ -181,15 +178,7 @@ public class ProjectSelectorFrame extends javax.swing.JFrame {
     }
 
     private void fillProjectList() throws SQLException {
-        List<Project> projects = new ArrayList<Project>();
-        PreparedStatement stat = DbConnectionController.getConnection().prepareStatement("select projectid,title from project");
-        ResultSet rs = stat.executeQuery();
-        while (rs.next()) {
-            projects.add(new Project(rs.getInt("projectid"), rs.getString("title")));
-        }
-        rs.close();
-        stat.close();
-        projectList.setListData(projects.toArray());
+        projectList.setListData(DbDAO.getAllProjects().toArray());
     }
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JLabel jLabel1;
