@@ -66,38 +66,38 @@ public class RovFileXMLParser {
                     if (attribute.getName().getLocalPart().equalsIgnoreCase("val")) {
                         val = attribute.getValue();
                     } else if (attribute.getValue().equalsIgnoreCase("CLE")) {
-                        if (val != null || !val.isEmpty()) {
+                        if (val != null || val.length() != 0) {
                             data.getHeader().setProteaseUsed(val);
                         } else {
                             data.getHeader().setProteaseUsed(attribute.getValue());
                         }
                     } else if (attribute.getValue().equalsIgnoreCase("DISTILLERVERSION")) {
-                        if (val != null || !val.isEmpty()) {
+                        if (val != null || val.length() != 0) {
                             data.getHeader().setDistillerVersion(val);
                         } else {
                             data.getHeader().setDistillerVersion(XMLAttributes.next().getValue());
                         }
                     } else if (attribute.getValue().equalsIgnoreCase("QUANTITATION")) {
-                        if (val != null || !val.isEmpty()) {
+                        if (val != null || val.length() != 0) {
                             data.getHeader().setQuantitationMethod(val);
                         } else {
                             data.getHeader().setQuantitationMethod(XMLAttributes.next().getValue());
                         }
                     } else if (attribute.getValue().equalsIgnoreCase("IONSCORECUTOFF")) {
-                         if (val != null || !val.isEmpty()) {
-                            data.getHeader().setCutOff(Integer.parseInt(val));
+                         if (val != null || val.length() != 0) {
+                             data.getHeader().setCutOff(Integer.parseInt(val));
                         } else {
                             data.getHeader().setCutOff(Integer.parseInt(XMLAttributes.next().getValue()));
                         }
                         //todo find experiment with multiple mods
                     } else if (attribute.getValue().equalsIgnoreCase("MODS")) {
-                        if (val != null || !val.isEmpty()) {
+                        if (val != null || val.length() != 0) {
                             data.getHeader().addMod(val);
                         } else {
                             data.getHeader().addMod(XMLAttributes.next().getValue());
                         }
                     } else if (attribute.getValue().equalsIgnoreCase("FILENAME")) {
-                        if (val != null || !val.isEmpty()) {
+                        if (val != null || val.length() != 0) {
                             data.setFileName(val);
                         } else {
                             data.setFileName(XMLAttributes.next().getValue());

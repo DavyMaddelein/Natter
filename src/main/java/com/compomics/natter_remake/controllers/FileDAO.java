@@ -1,5 +1,6 @@
 package com.compomics.natter_remake.controllers;
 
+import com.compomics.natter_remake.model.Header;
 import com.compomics.natter_remake.model.PeptideGroup;
 import com.compomics.natter_remake.model.RovFile;
 import com.compomics.natter_remake.model.RovFileData;
@@ -78,16 +79,27 @@ public class FileDAO {
    
     }
 
-    public static void writeExtractedDataToDisk(RovFile rovFile) {
+    public static boolean writeExtractedDataToDisk(RovFile rovFile) throws IOException {
         RovFileData rovFileData = rovFile.getParsedData();
-        writeHeaderToDisk(rovFile.getHeader);
+        writeHeaderToDisk(rovFileData.getHeader());
         for (PeptideGroup aPeptideGroup : rovFileData.getPeptideGroups()){
         }
+        return true;
     }
 
-    public static void writeExtractedDataToDisk(List<RovFile> rovFiles) {
+    public static boolean writeExtractedDataToDisk(List<RovFile> rovFiles) throws IOException {
         for (RovFile rovFile : rovFiles) {
-            writeExtractedDataToDisk(rovFile);
+            if (!writeExtractedDataToDisk(rovFile)){
+                //TODO perhaps offer new write to disk in separate frame for failed writes, even later perhaps through viewer
+                throw new IOException("could not write data extracted from "+rovFile.getName()+" to disk");
+            }
         }
+        return true;
+    }
+
+    private static void writeHeaderToDisk(Header header) throws IOException {
+
+        
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 }

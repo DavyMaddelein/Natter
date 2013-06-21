@@ -27,7 +27,15 @@ import org.xml.sax.SAXException;
  */
 public class DataExtractor {
     private static final Logger logger = Logger.getLogger(DataExtractor.class);
-
+    /**
+     * 
+     * @param project
+     * @return
+     * @throws SQLException
+     * @throws ParserConfigurationException
+     * @throws IOException
+     * @throws XMLStreamException 
+     */
     public static List<RovFile> extractDataInMem(Project project) throws SQLException, ParserConfigurationException, IOException, XMLStreamException {
         InputStreamReader rovFileInputStreamReader;
         List<RovFile> rovFiles = DbDAO.downloadRovFilesInMemoryForProject(project);
@@ -38,7 +46,15 @@ public class DataExtractor {
         }
         return rovFiles;
     }
-
+    /**
+     * fetches and extracts the data in the Distiller files one by one in memory
+     * @param project the project in ms-lims to extract the data from
+     * @return a list of Distiller files in memory with the extracted data added to them
+     * @throws SQLException if the 
+     * @throws ParserConfigurationException
+     * @throws IOException
+     * @throws XMLStreamException 
+     */
     public static List<RovFile> extractDataLowMem(Project project) throws SQLException, ParserConfigurationException, IOException, XMLStreamException {
         InputStreamReader rovFileInputStreamReader;
         List<Integer> quantitationFileIds = DbDAO.getQuantitationFileIdsForProject(project);
@@ -46,7 +62,7 @@ public class DataExtractor {
         for (Integer quantitation_fileid : quantitationFileIds) {
             RovFile rovFile = DbDAO.getQuantitationFileForQuantitationFileId(quantitation_fileid);
             rovFileInputStreamReader = new InputStreamReader(new ByteArrayInputStream(rovFile.getFileContent()),"UTF-8");
-            parseRovFile(rovFileInputStreamReader);
+            rovFile.addParsedData(parseRovFile(rovFileInputStreamReader));
         }
         return rovFiles;
     }
@@ -57,7 +73,7 @@ public class DataExtractor {
      * @throws SQLException
      * @throws FileNotFoundException
      */
-    public static void extractDataToLocal(Project project) throws SQLException, FileNotFoundException, NullPointerException, IOException, ParserConfigurationException, SAXException, XMLStreamException {
+    public static List<RovFile> extractDataToLocal(Project project) throws SQLException, FileNotFoundException, NullPointerException, IOException, ParserConfigurationException, SAXException, XMLStreamException {
         File natterSaveLocation = new File(System.getProperty("java.io.tmpdir") + "/natter_output_files");
         Runtime.getRuntime().addShutdownHook(new Thread() {
             @Override
@@ -72,17 +88,40 @@ public class DataExtractor {
                 }
             }
         });
-        extractDataToLocal(project, natterSaveLocation);
+        return extractDataToLocal(project, natterSaveLocation);
     }
-
-    public static void extractDataToLocal(Project project, File rovFileOutputLocationFolder) throws SQLException, FileNotFoundException, NullPointerException, IOException, ParserConfigurationException, SAXException, XMLStreamException {
+    /**
+     * 
+     * @param project
+     * @param rovFileOutputLocationFolder
+     * @return
+     * @throws SQLException
+     * @throws FileNotFoundException
+     * @throws NullPointerException
+     * @throws IOException
+     * @throws ParserConfigurationException
+     * @throws SAXException
+     * @throws XMLStreamException 
+     */
+    public static List<RovFile> extractDataToLocal(Project project, File rovFileOutputLocationFolder) throws SQLException, FileNotFoundException, NullPointerException, IOException, ParserConfigurationException, SAXException, XMLStreamException {
         List<RovFile> filesToRun = DbDAO.downloadRovFilesLocallyForProject(project, rovFileOutputLocationFolder);
         for (RovFile file : filesToRun) {
             file.addParsedData(parseRovFile(file));
         }
-        FileDAO.writeExtractedDataToDisk(filesToRun);
+        return filesToRun;
     }
-
+    /**
+     * 
+     * @param rovFileOutputLocationFolder
+     * @param project
+     * @throws SQLException
+     * @throws FileNotFoundException
+     * @throws NullPointerException
+     * @throws IOException
+     * @throws ParserConfigurationException
+     * @throws SAXException
+     * @throws XMLStreamException 
+     */
     public static void extractDataToLocalLowMem(File rovFileOutputLocationFolder, Project project) throws SQLException, FileNotFoundException, NullPointerException, IOException, ParserConfigurationException, SAXException, XMLStreamException {
         List<RovFile> filesToRun = DbDAO.downloadRovFilesLocallyForProject(project, rovFileOutputLocationFolder);
         for (RovFile file : filesToRun) {
@@ -90,7 +129,14 @@ public class DataExtractor {
             FileDAO.writeExtractedDataToDisk(file);
         }
     }
-
+    /**
+     * 
+     * @param rovFile
+     * @return
+     * @throws ParserConfigurationException
+     * @throws IOException
+     * @throws XMLStreamException 
+     */
     //TODO write per read to disk or per section or per buffer filled?
     private static RovFileData parseRovFile(File rovFile) throws ParserConfigurationException, IOException, XMLStreamException {
         InvalidXMLCharacterFilterReader rovFileStreamReader = new InvalidXMLCharacterFilterReader(new InputStreamReader(new FileInputStream(rovFile.getAbsolutePath()), "UTF-8"));
@@ -98,7 +144,14 @@ public class DataExtractor {
         rovFileStreamReader.close();
         return data;
     }
-
+    /***
+     * 
+     * @param reader
+     * @return
+     * @throws ParserConfigurationException
+     * @throws IOException
+     * @throws XMLStreamException 
+     */
     private static RovFileData parseRovFile(Reader reader) throws ParserConfigurationException, IOException, XMLStreamException {
         XMLInputFactory xmlParseFactory = XMLInputFactory.newInstance();
         XMLEventReader xmlReader = xmlParseFactory.createXMLEventReader(reader);

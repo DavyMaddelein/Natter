@@ -10,16 +10,22 @@ public class RovFile extends File {
     
     private byte[] fileContent;
     private RovFileData data;
-    
+    /**
+     * constructor for Distiller files in memory
+     * @param fileName name of the distiller file
+     * @param fileContent the content in a distiller file
+     */
     public RovFile(String fileName, byte[] fileContent){
         super(fileName);
         this.fileContent = fileContent;
     }
-    
+    /**
+     * constructor for Distiller files on disk
+     * @param fileLocationOnDisk the location on disk
+     */
     public RovFile (String fileLocationOnDisk){
         super(fileLocationOnDisk);
     }
-    
     
     public byte[] getFileContent(){
      return fileContent;
