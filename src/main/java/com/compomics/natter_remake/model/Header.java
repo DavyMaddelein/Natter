@@ -14,13 +14,13 @@ import java.util.List;
  */
 public class Header {
 
-    private String proteaseUsed;
-    private int cutOff;
-    private String distillerVersion;
-    private String quantitationMethod;
-    private int matchedPeptides;
-    private int matchedProteins;
-    private int foundPeptides;
+    private String proteaseUsed = "was not present";
+    private int cutOff = -1;
+    private String distillerVersion = "was not present";
+    private String quantitationMethod = "was not present";
+    private int matchedPeptides = -1;
+    private int matchedProteins = -1;
+    private int foundPeptides = -1;
     private List<String> modsUsed = new ArrayList<String>();
 
     public String getProteaseUsed() {

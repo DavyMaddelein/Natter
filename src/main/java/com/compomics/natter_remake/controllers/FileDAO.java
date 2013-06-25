@@ -42,7 +42,7 @@ public class FileDAO {
         }
 
         Date date = new Date();
-        SimpleDateFormat sdf = new SimpleDateFormat("MM_dd_yyyy_h_mm_ss");
+        SimpleDateFormat sdf = new SimpleDateFormat("MM_dd_yyyy_h_mm_ss_SS");
         outputString.append(sdf.format(date));
         RovFile outputFile = new RovFile(outputString.toString());
         OutputStream out = new FileOutputStream(outputFile);

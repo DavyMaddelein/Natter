@@ -41,7 +41,7 @@ public class DataExtractor {
         List<RovFile> rovFiles = DbDAO.downloadRovFilesInMemoryForProject(project);
         for (RovFile file : rovFiles) {
             rovFileInputStreamReader = new InputStreamReader(new ByteArrayInputStream(file.getFileContent()),"UTF-8");
-            parseRovFile(rovFileInputStreamReader);
+            file.addParsedData(parseRovFile(rovFileInputStreamReader));
             rovFileInputStreamReader.close();
         }
         return rovFiles;
@@ -63,6 +63,7 @@ public class DataExtractor {
             RovFile rovFile = DbDAO.getQuantitationFileForQuantitationFileId(quantitation_fileid);
             rovFileInputStreamReader = new InputStreamReader(new ByteArrayInputStream(rovFile.getFileContent()),"UTF-8");
             rovFile.addParsedData(parseRovFile(rovFileInputStreamReader));
+            rovFiles.add(rovFile);
         }
         return rovFiles;
     }

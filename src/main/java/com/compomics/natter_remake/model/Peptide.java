@@ -1,19 +1,15 @@
 package com.compomics.natter_remake.model;
 
-import java.util.ArrayList;
-import java.util.List;
-
 /**
  *
  * @author Davy
  */
 public class Peptide {
-    
+
     private String sequence;
     private boolean valid = false;
     private String composition;
     private int peptideMatchId;
-    private List<PeptidePartner> peptidesInMatch = new ArrayList<PeptidePartner>();
     private int peptideGroupHitNumber;
     private PeptideGroup peptideGroup;
 
@@ -49,26 +45,19 @@ public class Peptide {
         this.peptideMatchId = peptideMatchId;
     }
 
-    public List<PeptidePartner> getPeptidesInMatch() {
-        return peptidesInMatch;
-    }
-
-    public void setPeptidesInMatch(List<PeptidePartner> peptidesInMatch) {
-        this.peptidesInMatch = peptidesInMatch;
-    }
-
     public void setPeptideNumber(int peptideNumber) {
         this.peptideGroupHitNumber = peptideNumber;
     }
-    public int getPeptideNumber(){
+
+    public int getPeptideNumber() {
         return this.peptideGroupHitNumber;
     }
 
     public void setPeptideGroup(PeptideGroup peptideGroup) {
-    this.peptideGroup = peptideGroup;
-            }
-    public PeptideGroup getPeptideGroup(){
+        this.peptideGroup = peptideGroup;
+    }
+
+    public PeptideGroup getPeptideGroup() {
         return peptideGroup;
     }
-    
 }

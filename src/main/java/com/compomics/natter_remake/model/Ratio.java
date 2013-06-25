@@ -7,9 +7,9 @@ package com.compomics.natter_remake.model;
 public class Ratio {
 
     private boolean valid;
-    private String ratioType;
-    private double ratioValue;
-    private double ratioQuality;
+    private String ratioType = "not found";
+    private double ratioValue = -1;
+    private double ratioQuality = -1;
 
     public void setRatio(String ratioType) {
         this.ratioType = ratioType;

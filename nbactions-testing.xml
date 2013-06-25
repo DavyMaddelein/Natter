@@ -5,6 +5,7 @@
             <goals>
                 <goal>clean</goal>
                 <goal>install</goal>
+                <goal>versions:use-latest-versions</goal>
                 <goal>findbugs:findbugs</goal>
                 <goal>checkstyle:checkstyle</goal>
             </goals>

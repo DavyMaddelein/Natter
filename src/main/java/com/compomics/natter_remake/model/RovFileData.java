@@ -10,10 +10,11 @@ import java.util.List;
  */
 public class RovFileData {
 
-    private String fileName;
+    private String fileName = "";
     private List<PeptideGroup> peptideGroups = new ArrayList<PeptideGroup>();
     private List<PeptideMatch> peptideMatchList = new ArrayList<PeptideMatch>(30);
     private List<Protein> proteinHits = new ArrayList<Protein>();
+    List<Peptide> peptideHits = new ArrayList<Peptide>();
     private Header header = new Header();
 
     public String getFileName() {
@@ -37,10 +38,6 @@ public class RovFileData {
         this.peptideMatchList.add(peptideMatch);
     }
 
-    public List<PeptideMatch> getPeptideMatches() {
-        return Collections.unmodifiableList(peptideMatchList);
-    }
-
     public void addProteinHit(Protein parsedProteinHit) {
         proteinHits.add(parsedProteinHit);
     }
@@ -51,6 +48,14 @@ public class RovFileData {
 
     public List<Protein> getProteinHits() {
         return Collections.unmodifiableList(proteinHits);
+    }
+
+    public List<Peptide> getPeptideHits() {
+        return Collections.unmodifiableList(peptideHits);
+    }
+
+    public void addPeptideHit(Peptide peptide) {
+        this.peptideHits.add(peptide);
     }
 
     public Header getHeader() {

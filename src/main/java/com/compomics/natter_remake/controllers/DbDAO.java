@@ -39,7 +39,7 @@ public class DbDAO {
 
     public static List<RovFile> downloadRovFilesLocallyForProject(Project project, File rovFileOutputLocationFolder, boolean deleteOnExit) throws SQLException, NullPointerException, FileNotFoundException, IOException {
         List<RovFile> files = new ArrayList<RovFile>();
-        PreparedStatement stat = DbConnectionController.getConnection().prepareStatement(new StringBuilder().append("select qf.filename, qf.file from (select distinct q.l_quantitation_fileid as temp from identification as i, spectrum as f , identification_to_quantitation as t, quantitation_group as q where i.l_spectrumid = f.spectrumid and f.l_projectid = ").append(project.getProjectId()).append(" and i.identificationid = t.l_identificationid and t.l_quantitation_groupid = q.quantitation_groupid) as linker, quantitation_file as qf where linker.temp = qf.quantitation_fileid").toString());
+        PreparedStatement stat = DbConnectionController.getConnection().prepareStatement(new StringBuilder().append("select qf.filename, qf.file from (select distinct q.l_quantitation_fileid as temp from identification as i, spectrum as f , identification_to_quantitation as t, quantitation_group as q where i.l_spectrumid = f.spectrumid and f.l_projectid = ").append(project.getProjectId()).append(" and i.identificationid = t.l_identificationid and t.l_quantitation_groupid = q.quantitation_groupid) as linker, quantitation_file as qf where linker.temp = qf.quantitation_fileid order by qf.quantitation_fileid").toString());
         ResultSet rs = stat.executeQuery();
         while (rs.next()) {
             files.add(FileDAO.unzipAndWriteByteArrayToDisk(rs.getBytes("file"), rs.getString("filename"), rovFileOutputLocationFolder, deleteOnExit));

@@ -66,40 +66,40 @@ public class RovFileXMLParser {
                     if (attribute.getName().getLocalPart().equalsIgnoreCase("val")) {
                         val = attribute.getValue();
                     } else if (attribute.getValue().equalsIgnoreCase("CLE")) {
-                        if (val != null || val.length() != 0) {
+                        if (val != null && !val.isEmpty()) {
                             data.getHeader().setProteaseUsed(val);
-                        } else {
+                        } else if (XMLAttributes.hasNext()) {
                             data.getHeader().setProteaseUsed(attribute.getValue());
                         }
                     } else if (attribute.getValue().equalsIgnoreCase("DISTILLERVERSION")) {
-                        if (val != null || val.length() != 0) {
+                        if (val != null && !val.isEmpty()) {
                             data.getHeader().setDistillerVersion(val);
-                        } else {
+                        } else if (XMLAttributes.hasNext()) {
                             data.getHeader().setDistillerVersion(XMLAttributes.next().getValue());
                         }
                     } else if (attribute.getValue().equalsIgnoreCase("QUANTITATION")) {
-                        if (val != null || val.length() != 0) {
+                        if (val != null && !val.isEmpty()) {
                             data.getHeader().setQuantitationMethod(val);
-                        } else {
+                        } else if (XMLAttributes.hasNext()) {
                             data.getHeader().setQuantitationMethod(XMLAttributes.next().getValue());
                         }
                     } else if (attribute.getValue().equalsIgnoreCase("IONSCORECUTOFF")) {
-                         if (val != null || val.length() != 0) {
+                         if (val != null && !val.isEmpty()) {
                              data.getHeader().setCutOff(Integer.parseInt(val));
-                        } else {
+                        } else if (XMLAttributes.hasNext()) {
                             data.getHeader().setCutOff(Integer.parseInt(XMLAttributes.next().getValue()));
                         }
                         //todo find experiment with multiple mods
                     } else if (attribute.getValue().equalsIgnoreCase("MODS")) {
-                        if (val != null || val.length() != 0) {
+                        if (val != null && !val.isEmpty()) {
                             data.getHeader().addMod(val);
-                        } else {
+                        } else if (XMLAttributes.hasNext()) {
                             data.getHeader().addMod(XMLAttributes.next().getValue());
                         }
                     } else if (attribute.getValue().equalsIgnoreCase("FILENAME")) {
-                        if (val != null || val.length() != 0) {
+                        if (val != null && !val.isEmpty()) {
                             data.setFileName(val);
-                        } else {
+                        } else if (XMLAttributes.hasNext()) {
                             data.setFileName(XMLAttributes.next().getValue());
                         }
                     }
@@ -226,13 +226,11 @@ public class RovFileXMLParser {
         }
 
         while (rovFileXMLReader.hasNext()) {
-            PeptidePartner peptidePartner = null;
             rovFileLine = rovFileXMLReader.nextEvent();
             if (rovFileLine.isStartElement()) {
                 if (rovFileLine.asStartElement().getName().getLocalPart().equalsIgnoreCase("partner")) {
                     //TODO clean this up
-                    peptidePartner = (parsePeptidePartner(rovFileXMLReader));
-                    peptideMatch.addPartner(peptidePartner);
+                    peptideMatch.addPartner(parsePeptidePartner(rovFileXMLReader));
                     break;
                 }
             }
