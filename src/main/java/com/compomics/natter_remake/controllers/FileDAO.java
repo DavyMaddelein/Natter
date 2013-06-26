@@ -24,8 +24,17 @@ import org.apache.commons.io.IOUtils;
 public class FileDAO {
 
     public static final File NATTERTEMPDIR =  new File(System.getProperty("java.io.tmpdir")+"/natter_rov_files");
-    
-    static RovFile writeByteArrayToDisk(byte[] fileContent, String filename, File fileOutputLocation, boolean deleteOnExit) throws NullPointerException, IOException {
+    /**
+     * writes the given byte array to the specified location
+     * @param fileContent the byte array to write
+     * @param filename name to give the new file
+     * @param fileOutputLocation folder to write the file to
+     * @param deleteOnExit should the file be deleted at program termination
+     * @return the distiller file
+     * @throws NullPointerException
+     * @throws IOException 
+     */
+    static File writeByteArrayToDisk(byte[] fileContent, String filename, File fileOutputLocation, boolean deleteOnExit) throws NullPointerException, IOException {
         StringBuilder outputString = new StringBuilder();
         if (!fileOutputLocation.exists()) {
             if (!fileOutputLocation.mkdir()) {
@@ -57,15 +66,15 @@ public class FileDAO {
         return outputFile;
     }
 
-    static RovFile unzipAndWriteByteArrayToDisk(byte[] zippedFileContent, File fileOutputLocation) throws IOException {
+    static File unzipAndWriteByteArrayToDisk(byte[] zippedFileContent, File fileOutputLocation) throws IOException {
         return writeByteArrayToDisk(unzipByteArray(zippedFileContent), null, fileOutputLocation, true);
     }
 
-    static RovFile unzipAndWriteByteArrayToDisk(byte[] zippedFileContent, String filename, File fileOutputLocation) throws IOException {
+    static File unzipAndWriteByteArrayToDisk(byte[] zippedFileContent, String filename, File fileOutputLocation) throws IOException {
         return writeByteArrayToDisk(unzipByteArray(zippedFileContent), filename, fileOutputLocation, true);
     }
 
-    static RovFile unzipAndWriteByteArrayToDisk(byte[] zippedFileContent, String filename, File fileOutputLocation, boolean deleteOnExit) throws IOException {
+    static File unzipAndWriteByteArrayToDisk(byte[] zippedFileContent, String filename, File fileOutputLocation, boolean deleteOnExit) throws IOException {
         return writeByteArrayToDisk(unzipByteArray(zippedFileContent), filename, fileOutputLocation, deleteOnExit);
     }
 

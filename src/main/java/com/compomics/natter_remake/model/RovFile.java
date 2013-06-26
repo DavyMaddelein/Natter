@@ -25,6 +25,11 @@ public class RovFile extends File {
      */
     public RovFile (String fileLocationOnDisk){
         super(fileLocationOnDisk);
+        //todo add file bytes to bytearray
+    }
+    
+    public RovFile(File aFile){
+        super(aFile.getAbsolutePath());
     }
     
     public byte[] getFileContent(){

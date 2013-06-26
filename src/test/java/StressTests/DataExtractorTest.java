@@ -61,6 +61,7 @@ public class DataExtractorTest {
     public void testExtractDataLowMem() throws Exception {
         System.out.println("extractDataLowMem");
         for (Project project : allProjects) {
+            System.out.println(project.getProjectId());
             List result = DataExtractor.extractDataLowMem(project);
         }
     }
