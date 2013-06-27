@@ -23,10 +23,6 @@ public class PeptideMatch {
         peptidePartners.add(parsePeptidePartner);
     }
 
-    public List<PeptidePartner> getMatchedPartners() {
-        return Collections.unmodifiableList(peptidePartners);
-    }
-
     public void setMatchId(int matchId) {
         this.matchId = matchId;
     }

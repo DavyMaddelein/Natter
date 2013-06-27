@@ -16,4 +16,12 @@ public class Scan {
     public void setArea(double area) {
         this.area = area;
     }
+
+    public double getScanNumber() {
+        return scanNumber;
+    }
+
+    public double getArea() {
+        return area;
+    }
 }

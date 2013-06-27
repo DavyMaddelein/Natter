@@ -10,7 +10,6 @@ import java.util.List;
 public class PeptidePartner {
 
     private IntensityGroup intensitiesRecoredForPeptide;
-    private int mOverZ;
     private boolean partnerFound;
     private int ratio;
     private List<Modification> modificationsOnPeptide = new ArrayList();
@@ -21,20 +20,12 @@ public class PeptidePartner {
     private List<Intensity> IntensitiesForPartner = new ArrayList<Intensity>(50);
     private ScanRange scanRange;
 
-    public IntensityGroup getIntensitiesRecoredForPeptide() {
+    public IntensityGroup getIntensitiesRecordedForPeptide() {
         return intensitiesRecoredForPeptide;
     }
 
     public void setIntensitiesRecoredForPeptide(IntensityGroup intensitiesRecoredForPeptide) {
         this.intensitiesRecoredForPeptide = intensitiesRecoredForPeptide;
-    }
-
-    public int getmOverZ() {
-        return mOverZ;
-    }
-
-    public void setmOverZ(int mOverZ) {
-        this.mOverZ = mOverZ;
     }
 
     public boolean isPartnerFound() {
