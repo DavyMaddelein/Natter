@@ -1,6 +1,7 @@
 package com.compomics.natter_remake.controllers;
 
 import com.compomics.natter_remake.model.ChargeState;
+import com.compomics.natter_remake.model.HitRatio;
 import com.compomics.natter_remake.model.Intensity;
 import com.compomics.natter_remake.model.IntensityList;
 import com.compomics.natter_remake.model.Peptide;
@@ -84,8 +85,8 @@ public class RovFileXMLParser {
                             data.getHeader().setQuantitationMethod(XMLAttributes.next().getValue());
                         }
                     } else if (attribute.getValue().equalsIgnoreCase("IONSCORECUTOFF")) {
-                         if (val != null && !val.isEmpty()) {
-                             data.getHeader().setCutOff(Integer.parseInt(val));
+                        if (val != null && !val.isEmpty()) {
+                            data.getHeader().setCutOff(Integer.parseInt(val));
                         } else if (XMLAttributes.hasNext()) {
                             data.getHeader().setCutOff(Integer.parseInt(XMLAttributes.next().getValue()));
                         }
@@ -184,19 +185,18 @@ public class RovFileXMLParser {
 
     private PeptideMatch parsePeptideMatch(XMLEventReader rovFileXMLReader) throws XMLStreamException {
         PeptideMatch peptideMatch = new PeptideMatch();
-        parsePeptidePartner(rovFileXMLReader, peptideMatch);
+        parsePeptideMatchHeader(peptideMatch);
         while (rovFileXMLReader.hasNext()) {
             rovFileLine = rovFileXMLReader.nextEvent();
             if (rovFileLine.isStartElement()) {
-                if (rovFileLine.asStartElement().getName().getLocalPart().equalsIgnoreCase("peptideMatch")) {
-                    peptideMatch = new PeptideMatch();
-                    parsePeptidePartner(rovFileXMLReader, peptideMatch);
+                if (rovFileLine.asStartElement().getName().getLocalPart().equalsIgnoreCase("partner")) {
+                    peptideMatch.addPartner(parsePeptidePartner(rovFileXMLReader));
                 } else if (rovFileLine.asStartElement().getName().getLocalPart().equalsIgnoreCase("chargeStateData")) {
                     peptideMatch.addChargeStateData(parseChargestateForPeptideMatch(rovFileXMLReader));
                 } else if (rovFileLine.asStartElement().getName().getLocalPart().equalsIgnoreCase("originalRatio")) {
-                    peptideMatch.addOriginalRatio(parseOriginalRatioForPeptideMatch());
-                } else if (rovFileLine.asStartElement().getName().getLocalPart().equalsIgnoreCase("hitRatio")) {
-                    peptideMatch.addHitRatio(parseRatioForPartners());
+                    peptideMatch.addOriginalRatio(parseAndAddDataToRatio(rovFileLine.asStartElement().getAttributes(),new Ratio()));
+                } else if (rovFileLine.asStartElement().getName().getLocalPart().equalsIgnoreCase("hitRatios")) {
+                    peptideMatch.addHitRatio(parseRatioForPartners(rovFileXMLReader));
                 }
             } else if (rovFileLine.isEndElement()) {
                 if (rovFileLine.asEndElement().getName().getLocalPart().equalsIgnoreCase("peptideMatch")) {
@@ -208,7 +208,7 @@ public class RovFileXMLParser {
         return peptideMatch;
     }
 
-    private void parsePeptidePartner(XMLEventReader rovFileXMLReader, PeptideMatch peptideMatch) throws XMLStreamException {
+    private void parsePeptideMatchHeader(PeptideMatch peptideMatch) throws XMLStreamException {
         XMLAttributes = rovFileLine.asStartElement().getAttributes();
         while (XMLAttributes.hasNext()) {
             Attribute attribute = XMLAttributes.next();
@@ -224,20 +224,9 @@ public class RovFileXMLParser {
                 peptideMatch.setMods(attribute.getValue());
             }
         }
-
-        while (rovFileXMLReader.hasNext()) {
-            rovFileLine = rovFileXMLReader.nextEvent();
-            if (rovFileLine.isStartElement()) {
-                if (rovFileLine.asStartElement().getName().getLocalPart().equalsIgnoreCase("partner")) {
-                    //TODO clean this up
-                    peptideMatch.addPartner(parsePeptidePartner(rovFileXMLReader));
-                    break;
-                }
-            }
-        }
     }
 
-    private List<Intensity> parseIntensityForPartner(XMLEventReader rovFileXMLReader) throws XMLStreamException {
+    private IntensityList parseIntensityForPartner(XMLEventReader rovFileXMLReader) throws XMLStreamException {
         IntensityList intensitiesOfPartner = new IntensityList();
         parseXICForPartner(rovFileLine, intensitiesOfPartner);
         while (rovFileXMLReader.hasNext()) {
@@ -291,6 +280,8 @@ public class RovFileXMLParser {
                     parseMatchesForPartner(partner);
                 } else if (rovFileLine.asStartElement().getName().getLocalPart().equalsIgnoreCase("range")) {
                     partner.addRange(parseRangesForPartner());
+                } else if (rovFileLine.asStartElement().getName().getLocalPart().equalsIgnoreCase("absoluteValue")) {
+                    partner.setAbsoluteRatio(parseAndAddDataToRatio(rovFileLine.asStartElement().getAttributes(), new Ratio()));
                 }
             } else if (rovFileLine.isEndElement()) {
                 if (rovFileLine.asEndElement().getName().getLocalPart().equalsIgnoreCase("partner")) {
@@ -352,13 +343,13 @@ public class RovFileXMLParser {
         return chargeState;
     }
 
-    private Ratio parseOriginalRatioForPeptideMatch() throws XMLStreamException {
-        XMLAttributes = rovFileLine.asStartElement().getAttributes();
-        Ratio ratio = new Ratio();
+    private Ratio parseAndAddDataToRatio(Iterator<Attribute> XMLAttributes, Ratio ratio) {
         while (XMLAttributes.hasNext()) {
             Attribute attribute = XMLAttributes.next();
             if (attribute.getName().getLocalPart().equalsIgnoreCase("ratio")) {
-                ratio.setRatio((attribute.getValue()));
+                if (!attribute.getValue().isEmpty()) {
+                    ratio.setRatio((attribute.getValue()));
+                }
             } else if (attribute.getName().getLocalPart().equalsIgnoreCase("valid")) {
                 ratio.setValid(attribute.getValue().equalsIgnoreCase("true"));
             } else if (attribute.getName().getLocalPart().equalsIgnoreCase("value")) {
@@ -366,24 +357,27 @@ public class RovFileXMLParser {
             } else if (attribute.getName().getLocalPart().equalsIgnoreCase("quality")) {
                 ratio.setQuality(Double.parseDouble(attribute.getValue()));
             }
-            //fitexy?
         }
         return ratio;
     }
 
-    private Ratio parseRatioForPartners() throws XMLStreamException {
+    private HitRatio parseRatioForPartners(XMLEventReader rovFileXMLReader) throws XMLStreamException {
+        HitRatio ratio = new HitRatio();
         XMLAttributes = rovFileLine.asStartElement().getAttributes();
-        Ratio ratio = new Ratio();
         while (XMLAttributes.hasNext()) {
             Attribute attribute = XMLAttributes.next();
-            if (attribute.getName().getLocalPart().equalsIgnoreCase("ratio")) {
-                ratio.setRatio((attribute.getValue()));
-            } else if (attribute.getName().getLocalPart().equalsIgnoreCase("valid")) {
-                ratio.setValid(attribute.getValue().equalsIgnoreCase("true"));
-            } else if (attribute.getName().getLocalPart().equalsIgnoreCase("value")) {
-                ratio.setValue(Double.parseDouble(attribute.getValue()));
-            } else if (attribute.getName().getLocalPart().equalsIgnoreCase("quality")) {
-                ratio.setQuality(Double.parseDouble(attribute.getValue()));
+            if (attribute.getName().getLocalPart().equalsIgnoreCase("hitNumber")) {
+                ratio.setHitNumber((Integer.parseInt(attribute.getValue())));
+            }
+        }
+        while (rovFileXMLReader.hasNext()) {
+            rovFileLine = rovFileXMLReader.nextEvent();
+            if (rovFileLine.isStartElement()) {
+                parseAndAddDataToRatio(rovFileLine.asStartElement().getAttributes(), ratio);
+            } else if (rovFileLine.isEndElement()) {
+                if (rovFileLine.asEndElement().getName().getLocalPart().equalsIgnoreCase("hitratios")) {
+                    break;
+                }
             }
         }
         return ratio;
@@ -456,13 +450,13 @@ public class RovFileXMLParser {
             if (attribute.getName().getLocalPart().equalsIgnoreCase("peakState")) {
                 intensitiesForPartnter.setValid(attribute.getValue().equalsIgnoreCase("ok"));
             } else if (attribute.getName().getLocalPart().equalsIgnoreCase("XICPeakStart")) {
-                intensitiesForPartnter.setPeakStart(Double.parseDouble(attribute.getValue()));
+                intensitiesForPartnter.setPeakStart(Integer.parseInt(attribute.getValue()));
             } else if (attribute.getName().getLocalPart().equalsIgnoreCase("XICPeakEnd")) {
-                intensitiesForPartnter.setPeakEnd(Double.parseDouble(attribute.getValue()));
+                intensitiesForPartnter.setPeakEnd(Integer.parseInt(attribute.getValue()));
             } else if (attribute.getName().getLocalPart().equalsIgnoreCase("XICRegionStart")) {
-                intensitiesForPartnter.setPeakRegionStart(Double.parseDouble(attribute.getValue()));
+                intensitiesForPartnter.setPeakRegionStart(Integer.parseInt(attribute.getValue()));
             } else if (attribute.getName().getLocalPart().equalsIgnoreCase("XICRegionEnd")) {
-                intensitiesForPartnter.setPeakRegionEnd(Double.parseDouble(attribute.getValue()));
+                intensitiesForPartnter.setPeakRegionEnd(Integer.parseInt(attribute.getValue()));
             }
         }
     }

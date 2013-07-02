@@ -9,24 +9,15 @@ import java.util.List;
  */
 public class PeptidePartner {
 
-    private IntensityGroup intensitiesRecoredForPeptide;
     private boolean partnerFound;
-    private int ratio;
-    private List<Modification> modificationsOnPeptide = new ArrayList();
+    private Ratio absoluteRatio;
+    private List<Modification> modificationsOnPeptide = new ArrayList<Modification>();
     private String component;
     private String peptideSequence;
     private List<Peptide> peptidesLinkedToPartner = new ArrayList<Peptide>();
     private double massOverCharge;
-    private List<Intensity> IntensitiesForPartner = new ArrayList<Intensity>(50);
+    private IntensityList IntensitiesForPartner = new IntensityList();
     private ScanRange scanRange;
-
-    public IntensityGroup getIntensitiesRecordedForPeptide() {
-        return intensitiesRecoredForPeptide;
-    }
-
-    public void setIntensitiesRecoredForPeptide(IntensityGroup intensitiesRecoredForPeptide) {
-        this.intensitiesRecoredForPeptide = intensitiesRecoredForPeptide;
-    }
 
     public boolean isPartnerFound() {
         return partnerFound;
@@ -36,12 +27,12 @@ public class PeptidePartner {
         this.partnerFound = partnerFound;
     }
 
-    public int getRatio() {
-        return ratio;
+    public Ratio getAbsoluteRatio() {
+        return absoluteRatio;
     }
 
-    public void setRatio(int ratio) {
-        this.ratio = ratio;
+    public void setAbsoluteRatio(Ratio ratio) {
+        this.absoluteRatio = ratio;
     }
 
     public List<Modification> getModificationsOnPeptide() {
@@ -68,7 +59,7 @@ public class PeptidePartner {
         this.massOverCharge = massOverCharge;
     }
 
-    public void addIntensities(List<Intensity> parseIntensityForPartner) {
+    public void addIntensities(IntensityList parseIntensityForPartner) {
         IntensitiesForPartner.addAll(parseIntensityForPartner);
     }
 
@@ -92,13 +83,11 @@ public class PeptidePartner {
         return massOverCharge;
     }
 
-    public List<Intensity> getIntensitiesForPartner() {
+    public IntensityList getIntensitiesForPartner() {
         return IntensitiesForPartner;
     }
 
     public ScanRange getScanRange() {
         return scanRange;
-    }
-    
-    
+    }  
 }

@@ -16,7 +16,7 @@ public class PeptideMatch {
     private String peptideSequence;
     private double intensity;
     private Ratio originalRatio;
-    private Ratio hitRatio;
+    private HitRatio hitRatio;
     private ChargeState chargeStateData;
 
     public void addPartner(PeptidePartner parsePeptidePartner) {
@@ -47,7 +47,7 @@ public class PeptideMatch {
         this.originalRatio = originalRatio;
     }
 
-    public void addHitRatio(Ratio hitRatio) {
+    public void addHitRatio(HitRatio hitRatio) {
         this.hitRatio = hitRatio;
     }
 
@@ -79,7 +79,7 @@ public class PeptideMatch {
         return originalRatio;
     }
 
-    public Ratio getHitRatio() {
+    public HitRatio getHitRatio() {
         return hitRatio;
     }
 

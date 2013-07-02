@@ -6,10 +6,10 @@ package com.compomics.natter_remake.model;
  */
 public class Scan {
 
-    private double scanNumber;
+    private int scanNumber;
     private double area;
 
-    public void setScanNumber(double scanNumber) {
+    public void setScanNumber(int scanNumber) {
         this.scanNumber = scanNumber;
     }
 
@@ -17,7 +17,7 @@ public class Scan {
         this.area = area;
     }
 
-    public double getScanNumber() {
+    public int getScanNumber() {
         return scanNumber;
     }
 

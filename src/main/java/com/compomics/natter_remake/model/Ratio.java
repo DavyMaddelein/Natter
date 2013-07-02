@@ -12,7 +12,7 @@ public class Ratio {
     private double ratioQuality = -1;
 
     public void setRatio(String ratioType) {
-        this.ratioType = ratioType;
+            this.ratioType = ratioType;
     }
 
     public void setValid(boolean valid) {
@@ -42,5 +42,4 @@ public class Ratio {
     public double getRatioQuality() {
         return ratioQuality;
     }
-    
 }

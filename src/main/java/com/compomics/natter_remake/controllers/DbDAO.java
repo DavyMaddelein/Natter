@@ -31,7 +31,7 @@ public class DbDAO {
         PreparedStatement stat = DbConnectionController.getConnection().prepareStatement(new StringBuilder().append("select qf.filename, qf.file from (select distinct q.l_quantitation_fileid as temp from identification as i, spectrum as f , identification_to_quantitation as t, quantitation_group as q where i.l_spectrumid = f.spectrumid and f.l_projectid = ").append(project.getProjectId()).append(" and i.identificationid = t.l_identificationid and t.l_quantitation_groupid = q.quantitation_groupid) as linker, quantitation_file as qf where linker.temp = qf.quantitation_fileid").toString());
         ResultSet rs = stat.executeQuery();
         while (rs.next()) {
-            files.add(new RovFile(rs.getString("filename"), FileDAO.unzipByteArray(rs.getBytes("file"))));
+            files.add(new RovFile(rs.getString("filename"), FileDAO.unGzipByteArray(rs.getBytes("file"))));
         }
         rs.close();
         stat.close();
@@ -108,7 +108,7 @@ public class DbDAO {
         PreparedStatement stat = DbConnectionController.getConnection().prepareStatement(new StringBuilder().append("select filename,file from quantitation_file where quantitation_fileid = ").append(quantitation_fileid).toString());
         ResultSet rs = stat.executeQuery();
         rs.next();
-        RovFile rovFile = new RovFile(rs.getString("filename"), FileDAO.unzipByteArray(rs.getBytes("file")));
+        RovFile rovFile = new RovFile(rs.getString("filename"), FileDAO.unGzipByteArray(rs.getBytes("file")));
         rs.close();
         stat.close();
         return rovFile;

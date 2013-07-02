@@ -7,50 +7,57 @@ import java.util.ArrayList;
  * @author Davy
  */
 public class IntensityList extends ArrayList<Intensity>{
-    private boolean valid;
-    private double peakStart;
-    private double peakEnd;
-    private double peakRegionEnd;
-    private double peakRegionStart;
+    private boolean valid = false;
+    private int peakStart = -1;
+    private int peakEnd= -1;
+    private int peakRegionEnd = -1;
+    private int peakRegionStart = -1;
+    
+    public IntensityList(int predeterminedSize){
+        super(predeterminedSize);
+    }
+
+    public IntensityList() {
+        super();
+    }
 
     public void setValid(boolean valid) {
         this.valid = valid;
     }
 
-    public void setPeakStart(double peakStart) {
+    public void setPeakStart(int peakStart) {
         this.peakStart = peakStart;
     }
 
-    public void setPeakEnd(double peakEnd) {
+    public void setPeakEnd(int peakEnd) {
         this.peakEnd = peakEnd;
     }
 
-    public void setPeakRegionEnd(double peakRegionEnd) {
+    public void setPeakRegionEnd(int peakRegionEnd) {
         this.peakRegionEnd = peakRegionEnd;
     }
 
-    public void setPeakRegionStart(double peakRegionStart) {
+    public void setPeakRegionStart(int peakRegionStart) {
         this.peakRegionStart = peakRegionStart;
     }
 
-    public boolean isValid() {
+    public boolean isValidPeak() {
         return valid;
     }
 
-    public double getPeakStart() {
+    public int getPeakStart() {
         return peakStart;
     }
 
-    public double getPeakEnd() {
+    public int getPeakEnd() {
         return peakEnd;
     }
 
-    public double getPeakRegionEnd() {
+    public int getPeakRegionEnd() {
         return peakRegionEnd;
     }
 
-    public double getPeakRegionStart() {
+    public int getPeakRegionStart() {
         return peakRegionStart;
     }
-    
 }
