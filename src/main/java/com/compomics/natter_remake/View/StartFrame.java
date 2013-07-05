@@ -4,6 +4,11 @@
  */
 package com.compomics.natter_remake.View;
 
+import java.io.IOException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import java.util.zip.ZipException;
+
 /**
  *
  * @author Davy
@@ -26,11 +31,27 @@ public class StartFrame extends javax.swing.JFrame {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        jButton1 = new javax.swing.JButton();
+        fileModeButton = new javax.swing.JButton();
+        jLabel1 = new javax.swing.JLabel();
+        databaseSelectionButton = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
-        jButton1.setText("jButton1");
+        fileModeButton.setText("extract data from Distiller files");
+        fileModeButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                fileModeButtonActionPerformed(evt);
+            }
+        });
+
+        jLabel1.setText("or");
+
+        databaseSelectionButton.setText("extract data from distiller files stored in ms-lims");
+        databaseSelectionButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                databaseSelectionButtonActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -38,19 +59,48 @@ public class StartFrame extends javax.swing.JFrame {
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jButton1)
-                .addContainerGap(317, Short.MAX_VALUE))
+                .addComponent(fileModeButton)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(jLabel1)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(databaseSelectionButton, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addGap(16, 16, 16))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                .addContainerGap(266, Short.MAX_VALUE)
-                .addComponent(jButton1)
-                .addContainerGap())
+            .addGroup(layout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(fileModeButton)
+                    .addComponent(jLabel1)
+                    .addComponent(databaseSelectionButton))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
+
+    private void fileModeButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_fileModeButtonActionPerformed
+        try {
+            new FileSelectionFrame();
+            this.dispose();
+            
+            // TODO add your handling code here:
+        }
+        catch (ZipException ex) {
+            Logger.getLogger(StartFrame.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        catch (IOException ex) {
+            Logger.getLogger(StartFrame.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }//GEN-LAST:event_fileModeButtonActionPerformed
+
+    private void databaseSelectionButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_databaseSelectionButtonActionPerformed
+        new LoginFrame();
+        this.dispose();
+        
+        
+    }//GEN-LAST:event_databaseSelectionButtonActionPerformed
 
     /**
      * @param args the command line arguments
@@ -87,6 +137,8 @@ public class StartFrame extends javax.swing.JFrame {
         });
     }
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JButton jButton1;
+    private javax.swing.JButton databaseSelectionButton;
+    private javax.swing.JButton fileModeButton;
+    private javax.swing.JLabel jLabel1;
     // End of variables declaration//GEN-END:variables
 }

@@ -15,9 +15,7 @@ public class OutputFormatter {
     public static String formatForCSV(RovFileData data) {
         StringBuilder outputString = new StringBuilder();
         for (Protein protein : data.getProteinHits()) {
-            outputString.append(protein.getAccession());
             outputString.append(formatPeptideMatchesForProtein(protein));
-            outputString.append('\n');
         }
         return outputString.toString();
 
@@ -26,7 +24,8 @@ public class OutputFormatter {
     private static String formatPeptideMatchesForProtein(Protein protein) {
         StringBuilder peptideMatchOutputString = new StringBuilder();
         for (PeptideMatch peptideMatch : protein.getPeptideMatches()) {
-            peptideMatchOutputString.append(peptideMatch.getPeptideSequence()).append(';');
+            peptideMatchOutputString.append(protein.getAccession()).append(';');
+            peptideMatchOutputString.append(peptideMatch.getPeptideSequence());
             peptideMatchOutputString.append(formatPeptidePartnersForMatch(peptideMatch));
         }
         return peptideMatchOutputString.toString();
@@ -35,10 +34,10 @@ public class OutputFormatter {
     private static String formatPeptidePartnersForMatch(PeptideMatch peptideMatch) {
         StringBuilder peptidePartnerOutputString = new StringBuilder();
         for (PeptidePartner partner : peptideMatch.getPeptidePartners()) {
-            peptidePartnerOutputString.append(partner.getAbsoluteRatio().getRatioType()).append(';');
-            formatPartnerIntensitiesForPartner(partner);
-            peptidePartnerOutputString.append("\n");
+            peptidePartnerOutputString.append(';').append(partner.getComponent()).append(';');
+            peptidePartnerOutputString.append(formatPartnerIntensitiesForPartner(partner));
         }
+        peptidePartnerOutputString.append('\n');
         return peptidePartnerOutputString.toString();
     }
 

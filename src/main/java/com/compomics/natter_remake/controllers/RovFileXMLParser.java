@@ -194,7 +194,7 @@ public class RovFileXMLParser {
                 } else if (rovFileLine.asStartElement().getName().getLocalPart().equalsIgnoreCase("chargeStateData")) {
                     peptideMatch.addChargeStateData(parseChargestateForPeptideMatch(rovFileXMLReader));
                 } else if (rovFileLine.asStartElement().getName().getLocalPart().equalsIgnoreCase("originalRatio")) {
-                    peptideMatch.addOriginalRatio(parseAndAddDataToRatio(rovFileLine.asStartElement().getAttributes(),new Ratio()));
+                    peptideMatch.addOriginalRatio(parseAndAddDataToRatio(rovFileLine.asStartElement().getAttributes(), new Ratio()));
                 } else if (rovFileLine.asStartElement().getName().getLocalPart().equalsIgnoreCase("hitRatios")) {
                     peptideMatch.addHitRatio(parseRatioForPartners(rovFileXMLReader));
                 }
@@ -226,8 +226,7 @@ public class RovFileXMLParser {
         }
     }
 
-    private IntensityList parseIntensityForPartner(XMLEventReader rovFileXMLReader) throws XMLStreamException {
-        IntensityList intensitiesOfPartner = new IntensityList();
+    private void fillIntensityListForPartner(XMLEventReader rovFileXMLReader, IntensityList intensitiesOfPartner) throws XMLStreamException {
         parseXICForPartner(rovFileLine, intensitiesOfPartner);
         while (rovFileXMLReader.hasNext()) {
             rovFileLine = rovFileXMLReader.nextEvent();
@@ -251,7 +250,6 @@ public class RovFileXMLParser {
                 }
             }
         }
-        return intensitiesOfPartner;
     }
 
     private PeptidePartner parsePeptidePartner(XMLEventReader rovFileXMLReader) throws XMLStreamException {
@@ -275,7 +273,7 @@ public class RovFileXMLParser {
             rovFileLine = rovFileXMLReader.nextEvent();
             if (rovFileLine.isStartElement()) {
                 if (rovFileLine.asStartElement().getName().getLocalPart().equalsIgnoreCase("xic")) {
-                    partner.addIntensities(parseIntensityForPartner(rovFileXMLReader));
+                    fillIntensityListForPartner(rovFileXMLReader, partner.getIntensitiesForPartner());
                 } else if (rovFileLine.asStartElement().getName().getLocalPart().equalsIgnoreCase("matches")) {
                     parseMatchesForPartner(partner);
                 } else if (rovFileLine.asStartElement().getName().getLocalPart().equalsIgnoreCase("range")) {

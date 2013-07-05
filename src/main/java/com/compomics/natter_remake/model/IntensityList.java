@@ -12,13 +12,13 @@ public class IntensityList extends ArrayList<Intensity>{
     private int peakEnd= -1;
     private int peakRegionEnd = -1;
     private int peakRegionStart = -1;
-    
-    public IntensityList(int predeterminedSize){
-        super(predeterminedSize);
-    }
 
     public IntensityList() {
         super();
+    }
+    
+    public IntensityList(int initBufferSize){
+        super(initBufferSize);
     }
 
     public void setValid(boolean valid) {

@@ -60,7 +60,7 @@
                               </Group>
                               <Group type="102" alignment="1" attributes="0">
                                   <Component id="urlLabel" min="-2" max="-2" attributes="0"/>
-                                  <EmptySpace type="unrelated" max="-2" attributes="0"/>
+                                  <EmptySpace type="separate" max="-2" attributes="0"/>
                               </Group>
                           </Group>
                           <Group type="103" groupAlignment="0" attributes="0">
@@ -183,7 +183,7 @@
         </Component>
         <Component class="javax.swing.JLabel" name="jLabel1">
           <Properties>
-            <Property name="text" type="java.lang.String" value="database name"/>
+            <Property name="text" type="java.lang.String" value="Database name"/>
           </Properties>
         </Component>
       </SubComponents>

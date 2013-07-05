@@ -4,11 +4,19 @@
  */
 package com.compomics.natter_remake.View;
 
+import com.compomics.natter_remake.controllers.DataExtractor;
+import com.compomics.natter_remake.controllers.FileDAO;
+import com.compomics.natter_remake.model.RovFile;
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.util.zip.ZipEntry;
 import java.util.zip.ZipException;
 import java.util.zip.ZipFile;
 import javax.swing.JOptionPane;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.stream.XMLStreamException;
 import org.apache.log4j.Logger;
 
 /**
@@ -29,14 +37,24 @@ public class FileSelectionFrame extends javax.swing.JFrame {
 
     }
 
-    private void buttonpress() {
+    private void buttonpress() throws ParserConfigurationException, XMLStreamException {
         try {
-            ZipFile selectedFile = new ZipFile(new File(""));
-            selectedFile.getEntry("bb8");
-        } catch (ZipException ex) {
+            RovFile rovFileToExtract = new RovFile("");
+            if (FileDAO.checkIfFileIsZipped(rovFileToExtract)) {
+                ZipFile selectedDistillerFile = new ZipFile(rovFileToExtract);
+                ZipEntry zippedQuantXML = selectedDistillerFile.getEntry("bb8");
+                try{
+                    DataExtractor.parseRovFile(new BufferedReader(new InputStreamReader(selectedDistillerFile.getInputStream(zippedQuantXML))));
+                } catch(NullPointerException npe){
+                    JOptionPane.showMessageDialog(this, "the Distiller file did not contain quantitation data");
+                }
+            }
+        }
+        catch (ZipException ex) {
             logger.error(ex);
             //fail silently?
-        } catch (IOException ex) {
+        }
+        catch (IOException ex) {
             logger.error(ex);
             JOptionPane.showMessageDialog(this, "");
         }

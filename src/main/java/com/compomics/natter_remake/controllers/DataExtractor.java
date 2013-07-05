@@ -165,7 +165,7 @@ public class DataExtractor {
      * @throws IOException
      * @throws XMLStreamException
      */
-    private static RovFileData parseRovFile(File rovFile) throws ParserConfigurationException, IOException, XMLStreamException {
+    public static RovFileData parseRovFile(File rovFile) throws ParserConfigurationException, IOException, XMLStreamException {
         InvalidXMLCharacterFilterReader rovFileStreamReader = new InvalidXMLCharacterFilterReader(new InputStreamReader(new FileInputStream(rovFile.getAbsolutePath()), "UTF-8"));
         RovFileData data = DataExtractor.parseRovFile(rovFileStreamReader);
         rovFileStreamReader.close();
@@ -180,7 +180,7 @@ public class DataExtractor {
      * @throws IOException
      * @throws XMLStreamException
      */
-    private static RovFileData parseRovFile(Reader reader) throws ParserConfigurationException, IOException, XMLStreamException {
+    public static RovFileData parseRovFile(Reader reader) throws ParserConfigurationException, IOException, XMLStreamException {
         XMLInputFactory xmlParseFactory = XMLInputFactory.newInstance();
         XMLEventReader xmlReader = xmlParseFactory.createXMLEventReader(reader);
         RovFileXMLParser xmlParser = new RovFileXMLParser(xmlReader);

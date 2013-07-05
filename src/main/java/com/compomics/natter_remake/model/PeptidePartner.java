@@ -59,10 +59,6 @@ public class PeptidePartner {
         this.massOverCharge = massOverCharge;
     }
 
-    public void addIntensities(IntensityList parseIntensityForPartner) {
-        IntensitiesForPartner.addAll(parseIntensityForPartner);
-    }
-
     public void addPeptidelinkToPartner(Peptide peptide) {
         peptidesLinkedToPartner.add(peptide);
     }

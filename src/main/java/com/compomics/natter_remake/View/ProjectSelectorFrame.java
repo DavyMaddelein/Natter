@@ -26,6 +26,7 @@ public class ProjectSelectorFrame extends javax.swing.JFrame {
      */
     public ProjectSelectorFrame() throws SQLException {
         initComponents();
+        //projectList.setSelectionMode(multiselection);
         this.setVisible(true);
         fillProjectList();
     }
@@ -39,6 +40,7 @@ public class ProjectSelectorFrame extends javax.swing.JFrame {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
+        buttonGroup1 = new javax.swing.ButtonGroup();
         runButton = new javax.swing.JButton();
         jProgressBar1 = new javax.swing.JProgressBar();
         jScrollPane1 = new javax.swing.JScrollPane();
@@ -46,6 +48,12 @@ public class ProjectSelectorFrame extends javax.swing.JFrame {
         jLabel1 = new javax.swing.JLabel();
         saveFolderLocationTextField = new javax.swing.JTextField();
         saveLocationSelectionButton = new javax.swing.JButton();
+        jMenuBar1 = new javax.swing.JMenuBar();
+        jMenu1 = new javax.swing.JMenu();
+        jMenu3 = new javax.swing.JMenu();
+        jRadioButtonMenuItem1 = new javax.swing.JRadioButtonMenuItem();
+        jRadioButtonMenuItem2 = new javax.swing.JRadioButtonMenuItem();
+        jMenu2 = new javax.swing.JMenu();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -68,6 +76,27 @@ public class ProjectSelectorFrame extends javax.swing.JFrame {
                 saveLocationSelectionButtonActionPerformed(evt);
             }
         });
+
+        jMenu1.setText("Advanced");
+
+        jMenu3.setText("extraction method ...");
+
+        jRadioButtonMenuItem1.setSelected(true);
+        jRadioButtonMenuItem1.setText("all Distiller files in mem");
+        jMenu3.add(jRadioButtonMenuItem1);
+
+        jRadioButtonMenuItem2.setSelected(true);
+        jRadioButtonMenuItem2.setText("one Distiller file by one");
+        jMenu3.add(jRadioButtonMenuItem2);
+
+        jMenu1.add(jMenu3);
+
+        jMenuBar1.add(jMenu1);
+
+        jMenu2.setText("Edit");
+        jMenuBar1.add(jMenu2);
+
+        setJMenuBar(jMenuBar1);
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -103,7 +132,7 @@ public class ProjectSelectorFrame extends javax.swing.JFrame {
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(saveFolderLocationTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(saveLocationSelectionButton))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 21, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addComponent(runButton)
                 .addGap(18, 18, 18)
                 .addComponent(jProgressBar1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -115,6 +144,7 @@ public class ProjectSelectorFrame extends javax.swing.JFrame {
 
     private void saveLocationSelectionButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_saveLocationSelectionButtonActionPerformed
         JFileChooser saveLocationChooser = new JFileChooser();
+        saveLocationChooser.setMultiSelectionEnabled(false);
         saveLocationChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
         saveLocationChooser.showOpenDialog(this);
         saveLocation = saveLocationChooser.getSelectedFile();
@@ -181,8 +211,15 @@ public class ProjectSelectorFrame extends javax.swing.JFrame {
         projectList.setListData(DbDAO.getAllProjects().toArray());
     }
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.ButtonGroup buttonGroup1;
     private javax.swing.JLabel jLabel1;
+    private javax.swing.JMenu jMenu1;
+    private javax.swing.JMenu jMenu2;
+    private javax.swing.JMenu jMenu3;
+    private javax.swing.JMenuBar jMenuBar1;
     private javax.swing.JProgressBar jProgressBar1;
+    private javax.swing.JRadioButtonMenuItem jRadioButtonMenuItem1;
+    private javax.swing.JRadioButtonMenuItem jRadioButtonMenuItem2;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JList projectList;
     private javax.swing.JButton runButton;

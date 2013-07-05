@@ -1,7 +1,6 @@
 package com.compomics.natter_remake.View;
 
 import com.compomics.natter_remake.controllers.DbConnectionController;
-import com.compomics.natter_remake.View.ProjectSelectorFrame;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.sql.SQLException;
@@ -62,7 +61,7 @@ public class LoginFrame extends javax.swing.JFrame {
                 }
             }
         });
-        
+
         passwordField.addKeyListener(new KeyAdapter() {
             @Override
             public void keyTyped(KeyEvent e) {
@@ -137,7 +136,7 @@ public class LoginFrame extends javax.swing.JFrame {
 
         databaseName.setText("projects");
 
-        jLabel1.setText("database name");
+        jLabel1.setText("Database name");
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
@@ -154,7 +153,7 @@ public class LoginFrame extends javax.swing.JFrame {
                                 .addGap(41, 41, 41))
                             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
                                 .addComponent(urlLabel)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)))
+                                .addGap(18, 18, 18)))
                         .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(passwordField)
                             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
@@ -247,13 +246,17 @@ public class LoginFrame extends javax.swing.JFrame {
                     break;
                 }
             }
-        } catch (ClassNotFoundException ex) {
+        }
+        catch (ClassNotFoundException ex) {
             java.util.logging.Logger.getLogger(LoginFrame.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (InstantiationException ex) {
+        }
+        catch (InstantiationException ex) {
             java.util.logging.Logger.getLogger(LoginFrame.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (IllegalAccessException ex) {
+        }
+        catch (IllegalAccessException ex) {
             java.util.logging.Logger.getLogger(LoginFrame.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (javax.swing.UnsupportedLookAndFeelException ex) {
+        }
+        catch (javax.swing.UnsupportedLookAndFeelException ex) {
             java.util.logging.Logger.getLogger(LoginFrame.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         }
         //</editor-fold>
@@ -269,7 +272,6 @@ public class LoginFrame extends javax.swing.JFrame {
     private void launchProjectSelectorWindow() throws SQLException {
         new ProjectSelectorFrame();
         this.dispose();
-
     }
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton cancelButton;
@@ -293,7 +295,8 @@ public class LoginFrame extends javax.swing.JFrame {
             try {
                 DbConnectionController.createConnection(usernameTextField.getText(), new String(passwordField.getPassword()), urlTextField.getText(), databaseName.getText());
                 launchProjectSelectorWindow();
-            } catch (SQLException sqle) {
+            }
+            catch (SQLException sqle) {
                 logger.error(sqle);
                 JOptionPane.showMessageDialog(this, "there has been an error while trying to log in.\n" + sqle.getMessage());
             }
