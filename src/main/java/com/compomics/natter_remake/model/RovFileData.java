@@ -12,10 +12,11 @@ public class RovFileData {
 
     private String fileName = "";
     private List<PeptideGroup> peptideGroups = new ArrayList<PeptideGroup>();
-    private List<PeptideMatch> peptideMatchList = new ArrayList<PeptideMatch>(30);
+    private List<PeptideMatch> peptideMatchList = new ArrayList<PeptideMatch>(500);
     private List<Protein> proteinHits = new ArrayList<Protein>();
     List<Peptide> peptideHits = new ArrayList<Peptide>();
     private Header header = new Header();
+    private List<RawFile> rawFiles = new ArrayList<RawFile>();
 
     public String getFileName() {
         return fileName;
@@ -60,5 +61,13 @@ public class RovFileData {
 
     public Header getHeader() {
         return header;
+    }
+
+    public void addRawFile(RawFile parsedRawFile) {
+        rawFiles.add(parsedRawFile);
+    }
+    
+    public List<RawFile> getRawFiles(){
+        return Collections.unmodifiableList(rawFiles);
     }
 }

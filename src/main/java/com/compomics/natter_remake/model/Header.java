@@ -22,6 +22,7 @@ public class Header {
     private int matchedProteins = -1;
     private int foundPeptides = -1;
     private List<String> modsUsed = new ArrayList<String>();
+    private String rawFileName = "was not present";
 
     public String getProteaseUsed() {
         return proteaseUsed;
@@ -89,5 +90,12 @@ public class Header {
 
     public void setFoundPeptides(int foundPeptides) {
         this.foundPeptides = foundPeptides;
+    }
+    
+    public void setRawFilename(String rawFileName){
+        this.rawFileName = rawFileName;
+    }
+    public String getRawFileName(){
+        return rawFileName;
     }
 }

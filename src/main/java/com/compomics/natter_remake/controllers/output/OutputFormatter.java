@@ -1,4 +1,4 @@
-package com.compomics.natter_remake.controllers;
+package com.compomics.natter_remake.controllers.output;
 
 import com.compomics.natter_remake.model.Intensity;
 import com.compomics.natter_remake.model.PeptideMatch;

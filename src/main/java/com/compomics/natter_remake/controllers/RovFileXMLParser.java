@@ -10,6 +10,7 @@ import com.compomics.natter_remake.model.PeptideMatch;
 import com.compomics.natter_remake.model.PeptidePartner;
 import com.compomics.natter_remake.model.Protein;
 import com.compomics.natter_remake.model.Ratio;
+import com.compomics.natter_remake.model.RawFile;
 import com.compomics.natter_remake.model.RovFileData;
 import com.compomics.natter_remake.model.Scan;
 import com.compomics.natter_remake.model.ScanRange;
@@ -42,6 +43,8 @@ public class RovFileXMLParser {
             if (rovFileLine.isStartElement()) {
                 if (rovFileLine.asStartElement().getName().getLocalPart().equalsIgnoreCase("counters")) {
                     parseCounters(rovFileLine);
+                } else if (rovFileLine.asStartElement().getName().getLocalPart().equalsIgnoreCase("rawFile")) {
+                    data.addRawFile(parseRawFile(rovFileXMLReader));
                 } else if (rovFileLine.asStartElement().getName().getLocalPart().equalsIgnoreCase("header")) {
                     parseHeader(rovFileXMLReader);
                 } else if (rovFileLine.asStartElement().getName().getLocalPart().equalsIgnoreCase("peptideGrouping")) {
@@ -485,5 +488,29 @@ public class RovFileXMLParser {
 
     RovFileData getRovFileData() {
         return data;
+    }
+
+    private RawFile parseRawFile(XMLEventReader rovFileXMLReader) throws XMLStreamException {
+        RawFile rawFile = new RawFile();
+        while (rovFileXMLReader.hasNext()) {
+            rovFileLine = rovFileXMLReader.nextEvent();
+            if (rovFileLine.isStartElement()) {
+                XMLAttributes = rovFileLine.asStartElement().getAttributes();
+                String val = null;
+                while (XMLAttributes.hasNext()) {
+                    Attribute attribute = XMLAttributes.next();
+                    if (attribute.getName().getLocalPart().equalsIgnoreCase("val")) {
+                        val = attribute.getValue();
+                    } else if (attribute.getValue().equalsIgnoreCase("filename")) {
+                        if (val != null && !val.isEmpty()) {
+                            rawFile.setFileName(val);
+                        }else if (XMLAttributes.hasNext()) {
+                            rawFile.setFileName(attribute.getValue());
+                        }
+                    }
+                }
+            }
+        }
+        return rawFile;
     }
 }

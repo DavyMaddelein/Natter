@@ -1,5 +1,6 @@
 package com.compomics.natter_remake.controllers;
 
+import com.compomics.natter_remake.model.Peptide;
 import com.compomics.natter_remake.model.Project;
 import com.compomics.natter_remake.model.RovFile;
 import java.io.File;
@@ -151,5 +152,12 @@ public class DbDAO {
         rs.close();
         stat.close();
         return projects;
+    }
+    
+    public static boolean checkIfPeptideIsIdentified(Peptide peptide,int projectNumber){
+        boolean identified = false;
+        
+        
+        return identified;
     }
 }

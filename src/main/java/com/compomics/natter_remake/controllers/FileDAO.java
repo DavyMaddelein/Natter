@@ -1,5 +1,6 @@
 package com.compomics.natter_remake.controllers;
 
+import com.compomics.natter_remake.controllers.output.OutputFormatter;
 import com.compomics.natter_remake.model.Header;
 import com.compomics.natter_remake.model.RovFile;
 import com.compomics.natter_remake.model.RovFileData;

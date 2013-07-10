@@ -12,13 +12,22 @@ public class Peptide {
     private int peptideMatchId;
     private int peptideGroupHitNumber;
     private PeptideGroup peptideGroup;
+    private String modifiedSequence;
 
     public String getSequence() {
         return sequence;
     }
+    
+    public String getModifiedSequence(){
+        return modifiedSequence;
+    }
 
     public void setSequence(String sequence) {
         this.sequence = sequence;
+    }
+    
+    public void setModifiedSequence(String modifiedSequence){
+        this.modifiedSequence = modifiedSequence;
     }
 
     public boolean isValid() {
