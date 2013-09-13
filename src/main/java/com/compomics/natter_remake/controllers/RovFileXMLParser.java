@@ -4,6 +4,7 @@ import com.compomics.natter_remake.model.ChargeState;
 import com.compomics.natter_remake.model.HitRatio;
 import com.compomics.natter_remake.model.Intensity;
 import com.compomics.natter_remake.model.IntensityList;
+import com.compomics.natter_remake.model.Modification;
 import com.compomics.natter_remake.model.Peptide;
 import com.compomics.natter_remake.model.PeptideGroup;
 import com.compomics.natter_remake.model.PeptideMatch;
@@ -35,6 +36,8 @@ public class RovFileXMLParser {
     private Iterator<Attribute> XMLAttributes;
     private Map<Integer, Peptide> queryNumberToPeptide = new HashMap<Integer, Peptide>(500);
     private Map<Integer, PeptideMatch> peptideMatchIdToPeptideMatch = new HashMap<Integer, PeptideMatch>(500);
+    private Map<Integer, PeptideGroup> peptideHitIdToPeptideGroup = new HashMap<Integer, PeptideGroup>(500);
+    private Map<Integer, Modification> modificationsInFile = new HashMap<Integer, Modification>();
 
     public RovFileXMLParser(XMLEventReader rovFileXMLReader) throws XMLStreamException {
         data = new RovFileData();
@@ -47,15 +50,47 @@ public class RovFileXMLParser {
                     data.addRawFile(parseRawFile(rovFileXMLReader));
                 } else if (rovFileLine.asStartElement().getName().getLocalPart().equalsIgnoreCase("header")) {
                     parseHeader(rovFileXMLReader);
+                } else if (rovFileLine.asStartElement().getName().getLocalPart().equalsIgnoreCase("quantitation") && rovFileLine.asStartElement().getName().getPrefix().equalsIgnoreCase("mqm")) {
+                    parseModifications(rovFileXMLReader);
                 } else if (rovFileLine.asStartElement().getName().getLocalPart().equalsIgnoreCase("peptideGrouping")) {
                     data.setPeptideGroups(parsePeptideGroups(rovFileXMLReader));
                 } else if (rovFileLine.asStartElement().getName().getLocalPart().equalsIgnoreCase("peptideMatch")) {
                     data.addPeptideMatch(parsePeptideMatch(rovFileXMLReader));
                 } else if (rovFileLine.asStartElement().getName().getLocalPart().equalsIgnoreCase("proteinhit")) {
                     data.addProteinHit(parseProteinHit(rovFileXMLReader));
-                } // else if (rovFileLine.asStartElement().getName().getLocalPart().equalsIgnoreCase("peptide"))
+                } else if (rovFileLine.asStartElement().getName().getLocalPart().equalsIgnoreCase("peptide")) {
+                    data.addPeptideQuery(parsePeptide(rovFileXMLReader));
+                }
             }
         }
+    }
+
+    private Peptide parsePeptide(XMLEventReader rovFileXMLReader) throws XMLStreamException {
+        Peptide peptide = new Peptide();
+        while (rovFileXMLReader.hasNext()) {
+            rovFileLine = rovFileXMLReader.nextEvent();
+            if (rovFileLine.isStartElement()) {
+                XMLAttributes = rovFileLine.asStartElement().getAttributes();
+                while (XMLAttributes.hasNext()) {
+                    Attribute attribute = XMLAttributes.next();
+                    if (attribute.getName().getLocalPart().equalsIgnoreCase("component")) {
+                        peptide.setComposition(attribute.getValue());
+                    } else if (attribute.getName().getLocalPart().equalsIgnoreCase("peptideStr")) {
+                        peptide.setSequence(null);
+                    } else if (attribute.getName().getLocalPart().equalsIgnoreCase("varModsStr")) {
+                        peptide.setModifiedNumericalSequence(null);
+                    } else if (attribute.getName().getLocalPart().equalsIgnoreCase("query")) {
+                        peptide.setPeptideNumber(Integer.parseInt(attribute.getValue()));
+                    }
+                }
+            } else if (rovFileLine.isEndElement()) {
+                if (rovFileLine.asEndElement().getName().getLocalPart().equalsIgnoreCase("peptide")) {
+                    queryNumberToPeptide.get(peptide.getPeptideNumber());
+                    break;
+                }
+            }
+        }
+        return peptide;
     }
 
     private void parseHeader(XMLEventReader rovFileXMLReader) throws XMLStreamException {
@@ -141,6 +176,7 @@ public class RovFileXMLParser {
                     PeptideGroup peptideGroup = new PeptideGroup();
                     peptideGroup.setGroupNumber(Integer.parseInt(XMLAttributes.next().getValue()));
                     peptideGroup.addPeptides(parsePeptideGroupPeptides(rovFileXMLReader));
+                    peptideHitIdToPeptideGroup.put(peptideGroup.getGroupNumber(), peptideGroup);
                     peptideGroups.add(peptideGroup);
                 }
             } else if (rovFileLine.isEndElement()) {
@@ -172,11 +208,15 @@ public class RovFileXMLParser {
                             peptide.setValid(true);
                             parsedPeptides.add(peptide);
                         }
+                    } else if (attribute.getName().getLocalPart().equalsIgnoreCase("varMods")) {
+                        peptide.setModifiedNumericalSequence(attribute.getValue());
                     }
                 }
                 if (peptide.isValid()) {
+                    peptide.setModifiedSequence(peptide.getModifiedNumericalSequence(), modificationsInFile);
                     queryNumberToPeptide.put(peptide.getPeptideNumber(), peptide);
                 }
+
             } else if (rovFileLine.isEndElement()) {
                 if (rovFileLine.asEndElement().getName().getLocalPart().equalsIgnoreCase("hit")) {
                     break;
@@ -261,7 +301,7 @@ public class RovFileXMLParser {
         while (XMLAttributes.hasNext()) {
             Attribute attribute = XMLAttributes.next();
             if (attribute.getName().getLocalPart().equalsIgnoreCase("partnerIdentified")) {
-                partner.setPartnerFound(attribute.getValue().equalsIgnoreCase("valid"));
+                partner.setPartnerFound(attribute.getValue().equalsIgnoreCase("true"));
             } else if (attribute.getName().getLocalPart().equalsIgnoreCase("component")) {
                 partner.setComponent(attribute.getValue());
             } else if (attribute.getName().getLocalPart().equalsIgnoreCase("peptideString")) {
@@ -269,7 +309,7 @@ public class RovFileXMLParser {
             } else if (attribute.getName().getLocalPart().equalsIgnoreCase("mOverZ")) {
                 partner.setMassOverCharge(Double.parseDouble(attribute.getValue()));
             } else if (attribute.getName().getLocalPart().equalsIgnoreCase("labelFreeVariableModifications")) {
-                partner.setModificationsOnPeptide(null);
+                //partner.setModificationsOnPeptide(attribute.getValue());
             }
         }
         while (rovFileXMLReader.hasNext()) {
@@ -403,19 +443,7 @@ public class RovFileXMLParser {
         while (rovFileXMLReader.hasNext()) {
             rovFileLine = rovFileXMLReader.nextEvent();
             if (rovFileLine.isStartElement()) {
-                if (rovFileLine.asStartElement().getName().getLocalPart().equalsIgnoreCase("proteinhit")) {
-                    XMLAttributes = rovFileLine.asStartElement().getAttributes();
-                    while (XMLAttributes.hasNext()) {
-                        Attribute attribute = XMLAttributes.next();
-                        if (attribute.getName().getLocalPart().equalsIgnoreCase("accession")) {
-                            protein.setAccession(attribute.getValue());
-                        } else if (attribute.getName().getLocalPart().equalsIgnoreCase("score")) {
-                            protein.setScore(Integer.parseInt(attribute.getValue()));
-                        } else if (attribute.getName().getLocalPart().equalsIgnoreCase("mass")) {
-                            protein.setMass(Integer.parseInt(attribute.getValue()));
-                        }
-                    }
-                } else if (rovFileLine.asStartElement().getName().getLocalPart().equalsIgnoreCase("proteinratio")) {
+                if (rovFileLine.asStartElement().getName().getLocalPart().equalsIgnoreCase("proteinratio")) {
                     Ratio ratio = new Ratio();
                     XMLAttributes = rovFileLine.asStartElement().getAttributes();
                     while (XMLAttributes.hasNext()) {
@@ -440,7 +468,6 @@ public class RovFileXMLParser {
                 }
             }
         }
-
         return protein;
     }
 
@@ -503,14 +530,35 @@ public class RovFileXMLParser {
                         val = attribute.getValue();
                     } else if (attribute.getValue().equalsIgnoreCase("filename")) {
                         if (val != null && !val.isEmpty()) {
-                            rawFile.setFileName(val);
-                        }else if (XMLAttributes.hasNext()) {
-                            rawFile.setFileName(attribute.getValue());
+                            rawFile.setRawFileName(val);
+                        } else if (XMLAttributes.hasNext()) {
+                            attribute = XMLAttributes.next();
+                            rawFile.setRawFileName(attribute.getValue());
                         }
                     }
                 }
+                break;
             }
         }
         return rawFile;
+    }
+
+    private void parseModifications(XMLEventReader rovFileXMLReader) throws XMLStreamException {
+        int modcounter = 0;
+        modificationsInFile.put(modcounter, new Modification());
+        while (rovFileXMLReader.hasNext()) {
+            rovFileLine = rovFileXMLReader.nextEvent();
+            if (rovFileLine.isStartElement()) {
+                if (rovFileLine.asStartElement().getName().getLocalPart().equalsIgnoreCase("mod_file")) {
+                    rovFileLine = rovFileXMLReader.nextEvent();
+                    modcounter += 1;
+                    modificationsInFile.put(modcounter, new Modification(rovFileLine.asCharacters().getData()));
+                }
+            } else if (rovFileLine.isEndElement()) {
+                if (rovFileLine.asEndElement().getName().getLocalPart().equalsIgnoreCase("quantitation") && rovFileLine.asEndElement().getName().getPrefix().equalsIgnoreCase("mqm")) {
+                    break;
+                }
+            }
+        }
     }
 }

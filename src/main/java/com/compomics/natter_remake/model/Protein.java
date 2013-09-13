@@ -54,6 +54,4 @@ public class Protein {
     public List<PeptideMatch> getPeptideMatches() {
         return peptideMatches;
     }
-    
-    
 }

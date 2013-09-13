@@ -8,7 +8,6 @@ import com.compomics.natter_remake.controllers.DataExtractor;
 import com.compomics.natter_remake.controllers.FileDAO;
 import com.compomics.natter_remake.model.RovFile;
 import java.io.BufferedReader;
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.zip.ZipEntry;

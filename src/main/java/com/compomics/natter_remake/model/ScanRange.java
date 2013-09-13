@@ -13,5 +13,12 @@ public class ScanRange {
 
     public void setScan(double scanId) {
        this.scanId = scanId;}
-    
+
+    public double getScanId() {
+        return scanId;
+    }
+
+    public double getRetentionTime() {
+        return retentionTime;
+    }
 }

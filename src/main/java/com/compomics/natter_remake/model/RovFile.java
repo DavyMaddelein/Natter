@@ -22,7 +22,7 @@ public class RovFile extends File {
      */
     public RovFile(String fileName, byte[] fileContent) {
         super(fileName);
-        this.fileContent = fileContent;
+        this.fileContent = fileContent.clone();
     }
 
     /**
@@ -43,7 +43,7 @@ public class RovFile extends File {
         if (fileContent == null && this.exists()) {
             FileDAO.getFileContentFromFileOnDisk(this);
         }
-        return fileContent;
+        return fileContent.clone();
     }
 
     public void addParsedData(RovFileData parsedRovFile) {

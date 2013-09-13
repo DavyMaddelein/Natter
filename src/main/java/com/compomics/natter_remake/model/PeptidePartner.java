@@ -2,6 +2,7 @@ package com.compomics.natter_remake.model;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 /**
  *
@@ -9,15 +10,16 @@ import java.util.List;
  */
 public class PeptidePartner {
 
-    private boolean partnerFound;
+    private boolean partnerFound = false;
     private Ratio absoluteRatio;
     private List<Modification> modificationsOnPeptide = new ArrayList<Modification>();
-    private String component;
-    private String peptideSequence;
+    private String component = "not yet set";
+    private String peptideSequence = "not yet set";
     private List<Peptide> peptidesLinkedToPartner = new ArrayList<Peptide>();
-    private double massOverCharge;
-    private IntensityList IntensitiesForPartner = new IntensityList();
+    private double massOverCharge = -1.0;
+    private IntensityList intensitiesForPartner = new IntensityList();
     private ScanRange scanRange;
+    private String modifiedSequence = "not yet set";
 
     public boolean isPartnerFound() {
         return partnerFound;
@@ -39,8 +41,8 @@ public class PeptidePartner {
         return modificationsOnPeptide;
     }
 
-    public void setModificationsOnPeptide(List<Modification> modificationsOnPeptide) {
-        this.modificationsOnPeptide = modificationsOnPeptide;
+    public void setModificationsOnPeptide(Map<Integer,Modification> modifications, String numericalValueOfModifications) {
+        parseModifications(peptideSequence,modifications,numericalValueOfModifications);
     }
 
     public void setComponent(String component) {
@@ -80,10 +82,30 @@ public class PeptidePartner {
     }
 
     public IntensityList getIntensitiesForPartner() {
-        return IntensitiesForPartner;
+        return intensitiesForPartner;
     }
 
     public ScanRange getScanRange() {
         return scanRange;
-    }  
+    }
+
+    public String getModifiedSequence() {
+        return modifiedSequence;
+    }
+
+    public void setModifiedSequence(String sequence, Map<Integer,Modification> modifications, String numericalRepresentationOfMods) {
+        modifiedSequence = parseModifications(sequence,modifications,numericalRepresentationOfMods);
+    }
+
+    private String parseModifications(String sequence, Map<Integer,Modification> varMods,String numericalVarMods) {
+        String modifiedSequenceString = "peptide sequence not yet set";
+        if (!sequence.contains("not yet set")) {
+            StringBuilder modifiedSequenceBuilder = new StringBuilder();
+            for(int i = 0; i > numericalVarMods.length(); i++){
+                modifiedSequenceBuilder.append(sequence.charAt(sequence.charAt(i)));
+            }
+            modifiedSequenceString = modifiedSequenceBuilder.toString();
+        }
+        return modifiedSequenceString;
+    }
 }

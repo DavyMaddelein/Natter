@@ -1,5 +1,6 @@
 package com.compomics.natter_remake.controllers;
 
+import com.compomics.natter_remake.model.LcRun;
 import com.compomics.natter_remake.model.Project;
 import com.compomics.natter_remake.model.RovFile;
 import com.compomics.natter_remake.model.RovFileData;
@@ -11,7 +12,9 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.Reader;
+import java.io.UnsupportedEncodingException;
 import java.sql.SQLException;
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.stream.XMLEventReader;
@@ -31,8 +34,10 @@ public class DataExtractor {
 
     /**
      * fetches and extracts the data from distiller files in memory
+     *
      * @param project the project to get the distiller data for
-     * @return a List of RovFile objects with their respective data added to them
+     * @return a List of RovFile objects with their respective data added to
+     * them
      * @throws SQLException
      * @throws ParserConfigurationException
      * @throws IOException
@@ -41,6 +46,17 @@ public class DataExtractor {
     public static List<RovFile> extractDataInMem(Project project) throws SQLException, ParserConfigurationException, IOException, XMLStreamException {
         InputStreamReader rovFileInputStreamReader;
         List<RovFile> rovFiles = DbDAO.downloadRovFilesInMemoryForProject(project);
+        for (RovFile file : rovFiles) {
+            rovFileInputStreamReader = new InputStreamReader(new ByteArrayInputStream(file.getFileContent()), "UTF-8");
+            file.addParsedData(parseRovFile(rovFileInputStreamReader));
+            rovFileInputStreamReader.close();
+        }
+        return rovFiles;
+    }
+
+    public static List<RovFile> extractDataInMem(LcRun lcrun) throws UnsupportedEncodingException, FileNotFoundException, IOException, ParserConfigurationException, XMLStreamException, SQLException {
+        InputStreamReader rovFileInputStreamReader;
+        List<RovFile> rovFiles = DbDAO.downloadRovFilesInMemoryForLcrun(lcrun);
         for (RovFile file : rovFiles) {
             rovFileInputStreamReader = new InputStreamReader(new ByteArrayInputStream(file.getFileContent()), "UTF-8");
             file.addParsedData(parseRovFile(rovFileInputStreamReader));
@@ -64,19 +80,22 @@ public class DataExtractor {
         List<Integer> quantitationFileIds = DbDAO.getQuantitationFileIdsForProject(project);
         List<RovFile> rovFiles = new ArrayList<RovFile>(quantitationFileIds.size());
         for (Integer quantitation_fileid : quantitationFileIds) {
-            rovFiles.add(extractDataForQuantitationFileIdInMem(quantitation_fileid));
+            RovFile rovFile = (extractDataForQuantitationFileIdInMem(quantitation_fileid));
+            rovFiles.add(rovFile);
         }
         return rovFiles;
     }
 
     /**
      * extracts the distiller data for a quantitation_fileid in memory
-     * @param quantitationFileId the quantitation fileid in the db to extract the data from
+     *
+     * @param quantitationFileId the quantitation fileid in the db to extract
+     * the data from
      * @return RovFile object containing the extracted data
      * @throws SQLException
      * @throws IOException
      * @throws ParserConfigurationException
-     * @throws XMLStreamException 
+     * @throws XMLStreamException
      */
     public static RovFile extractDataForQuantitationFileIdInMem(int quantitationFileId) throws SQLException, IOException, ParserConfigurationException, XMLStreamException {
         InputStreamReader rovFileInputStreamReader;
@@ -94,12 +113,12 @@ public class DataExtractor {
      * @throws FileNotFoundException
      */
     public static List<RovFile> extractDataToLocal(Project project) throws SQLException, FileNotFoundException, NullPointerException, IOException, ParserConfigurationException, SAXException, XMLStreamException {
-        File natterSaveLocation = new File(System.getProperty("java.io.tmpdir") + "/natter_output_files");
+        File natterSaveLocation = new File(MessageFormat.format("{0}/natter_output_files", System.getProperty("java.io.tmpdir")));
         Runtime.getRuntime().addShutdownHook(new Thread() {
             @Override
             public void run() {
                 try {
-                    File natterSaveLocation = new File(System.getProperty("java.io.tmpdir") + "/natter_output_files");
+                    File natterSaveLocation = new File(MessageFormat.format("{0}/natter_output_files", System.getProperty("java.io.tmpdir")));
                     if (natterSaveLocation.exists()) {
                         FileUtils.deleteDirectory(natterSaveLocation);
                     }
@@ -166,14 +185,23 @@ public class DataExtractor {
      * @throws XMLStreamException
      */
     public static RovFileData parseRovFile(File rovFile) throws ParserConfigurationException, IOException, XMLStreamException {
-        InvalidXMLCharacterFilterReader rovFileStreamReader = new InvalidXMLCharacterFilterReader(new InputStreamReader(new FileInputStream(rovFile.getAbsolutePath()), "UTF-8"));
-        RovFileData data = DataExtractor.parseRovFile(rovFileStreamReader);
-        rovFileStreamReader.close();
+        InvalidXMLCharacterFilterReader rovFileStreamReader = null;
+        RovFileData data;
+        try {
+            rovFileStreamReader = new InvalidXMLCharacterFilterReader(new InputStreamReader(new FileInputStream(rovFile.getAbsolutePath()), "UTF-8"));
+            data = DataExtractor.parseRovFile(rovFileStreamReader);
+        }
+        finally {
+            if (rovFileStreamReader != null) {
+                rovFileStreamReader.close();
+            }
+        }
         return data;
     }
 
     /**
      * distiller file parser method for readers
+     *
      * @param reader stream reader containing the content from a distiller file
      * @return a RovFileData object containing the parsed data
      * @throws ParserConfigurationException

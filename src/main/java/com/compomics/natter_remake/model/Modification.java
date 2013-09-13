@@ -6,9 +6,16 @@ package com.compomics.natter_remake.model;
  */
 public class Modification {
 
-    private int modificationNumberInFile;
-    private String modification;
+    private int modificationNumberInFile = -1;
+    private String modification= "";
+    
+    public Modification(String modification){
+        this.modification = parseModificationName(modification);
+    }
 
+    public Modification() {
+       }
+    
     public int getModificationNumberInFile() {
         return modificationNumberInFile;
     }
@@ -25,6 +32,8 @@ public class Modification {
         this.modification = modification;
     }
     
-    
-    
+    private String parseModificationName(String aModification){
+        String parsedModification = String.format("<%s>", aModification.split(" ")[0]);
+        return parsedModification;
+    }
 }

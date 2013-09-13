@@ -6,14 +6,14 @@ package com.compomics.natter_remake.model;
  */
 public class RawFile {
 
-    private String fileName = "not found";
+    private String rawFileName = "not found";
     
-    public void setFileName(String fileName) {
-        this.fileName = fileName;
+    public void setRawFileName(String fileName) {
+        this.rawFileName = fileName;
     }
     
-    public String getFilename(){
-        return fileName;
+    public String getRawFilename(){
+        return rawFileName;
     }
     
 }

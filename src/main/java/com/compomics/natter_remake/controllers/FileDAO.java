@@ -1,22 +1,25 @@
 package com.compomics.natter_remake.controllers;
 
+import com.compomics.natter_remake.controllers.output.CSVOutputFormatterForDistillerFile;
 import com.compomics.natter_remake.controllers.output.OutputFormatter;
 import com.compomics.natter_remake.model.Header;
 import com.compomics.natter_remake.model.RovFile;
-import com.compomics.natter_remake.model.RovFileData;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
-import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.OutputStream;
+import java.io.OutputStreamWriter;
 import java.nio.charset.Charset;
+import java.text.MessageFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
@@ -32,14 +35,16 @@ import org.apache.log4j.Logger;
  * @author Davy
  */
 public class FileDAO {
+
     private static final Logger logger = Logger.getLogger(FileDAO.class);
-    public static final File NATTERTEMPDIR = new File(System.getProperty("java.io.tmpdir") + "/natter_rov_files");
+    public static final File NATTERTEMPDIR = new File(String.format("%s/natter_rov_files", System.getProperty("java.io.tmpdir")));
     /**
-     * check if file is zipped
+     * stuff to check if file is zipped
      */
     static final String magicZipHexString = "504b0304";
     static final String magicGzipHexString = "1f8b";
-    final protected static char[] hexArray = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F'};
+    final private static char[] hexArray = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F'};
+    final private static String ENCODING = "UTF-8";
 
     /**
      * writes the given byte array to the specified location
@@ -148,10 +153,21 @@ public class FileDAO {
      * @throws IOException
      */
     public static List<byte[]> unGzipByteArray(byte[] byteArray) throws IOException {
+        byte[] byteArrayToReturn;
         ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-        IOUtils.copy(new GZIPInputStream(new ByteArrayInputStream(byteArray)), byteArrayOutputStream);
-        byte[] byteArrayToReturn = byteArrayOutputStream.toByteArray();
-        byteArrayOutputStream.close();
+        GZIPInputStream GZIPInputStream = new GZIPInputStream(new ByteArrayInputStream(byteArray));
+        try {
+            IOUtils.copy(GZIPInputStream, byteArrayOutputStream);
+        }
+        finally {
+            GZIPInputStream.close();
+        }
+        try {
+            byteArrayToReturn = byteArrayOutputStream.toByteArray();
+        }
+        finally {
+            byteArrayOutputStream.close();
+        }
         return Arrays.asList(byteArrayToReturn);
     }
 
@@ -203,8 +219,15 @@ public class FileDAO {
         boolean isZipped = false;
         FileInputStream reader = new FileInputStream(file);
         byte[] magicByteArray = new byte[4];
-        reader.read(magicByteArray);
-        if (magicZipHexString.equals(new String(magicByteArray))) {
+        try {
+            if (reader.read(magicByteArray) != 4) {
+                throw new IOException("misread in magic bytes");
+            }
+        }
+        finally {
+            reader.close();
+        }
+        if (magicZipHexString.equals(new String(magicByteArray, ENCODING))) {
             isZipped = true;
         }
         return isZipped;
@@ -216,37 +239,79 @@ public class FileDAO {
      * @param byteArray the byte array to check
      * @return true if a zip archive, otherwise false
      */
-    public static boolean checkIfByteArrayIsZipped(byte[] byteArray) {
-        return magicZipHexString.equals(new String(Arrays.copyOfRange(byteArray, 0, 3)));
+    public static boolean checkIfByteArrayIsZipped(byte[] byteArray) throws IOException {
+        return magicZipHexString.equals(new String(Arrays.copyOfRange(byteArray, 0, 3), ENCODING));
     }
 
     /**
      * writes the extracted data to the temp dir
+     *
      * @param rovFile the Distiller file to write the data for
      * @return true if succeeded
      * @throws IOException
      */
     public static boolean writeExtractedDataToDisk(RovFile rovFile) throws IOException {
-        return writeExtractedDataToDisk(rovFile, NATTERTEMPDIR);
+        return writeExtractedDataToDisk(rovFile, NATTERTEMPDIR, new CSVOutputFormatterForDistillerFile(";"));
     }
-    
+
+    public static boolean writeExtractedDataToDisk(RovFile rovFile, File outputLocationFolder) throws IOException {
+        return writeExtractedDataToDisk(rovFile, outputLocationFolder, new CSVOutputFormatterForDistillerFile(";"));
+    }
+
     /**
      * writes the extracted data to the specified folder
+     *
      * @param rovFile distiller file to write the data for
      * @param outputLocation the location to write the extracted data to
      * @return true if succeeded
      */
-    public static boolean writeExtractedDataToDisk(RovFile rovFile,File outputLocation) throws IOException{
-        RovFileData rovFileData = rovFile.getParsedData();
-        writeHeaderToDisk(rovFileData.getHeader());
-        String outputString = OutputFormatter.formatForCSV(rovFileData);
-        writeOutputToDisk(outputString);
+    public static boolean writeExtractedDataToDisk(RovFile rovFile, File outputLocationFolder, OutputFormatter outputFormatter) throws IOException {
+        //writeHeaderToDisk(rovFileData.getHeader(),outputLocationFolder);
+        String outputString = outputFormatter.formatData(rovFile);
+        File outputFile = new File(outputLocationFolder, String.format("%s.natter_output", rovFile.getName()));
+        if (outputFile.exists()) {
+            outputFile = new File(String.format("%s_%s.natter_output", outputFile.getAbsolutePath(), Calendar.getInstance().getTimeInMillis()));
+        }
+        OutputStreamWriter outputWriter = new OutputStreamWriter(new FileOutputStream(outputFile), Charset.forName(ENCODING).newEncoder());
+        try {
+            outputWriter.write(outputString);
+        }
+        finally {
+            outputWriter.close();
+        }
         return true;
-    
+    }
+
+    /**
+     * convenience method to get all peptidematches in distiller file
+     *
+     * @param rovFile distiller file to process
+     * @param outputLocationFolder folder to write in
+     * @param outputFormatter the {@code OutputFormatter} to use when processing
+     * the data
+     * @return boolean if write to disk succeeded
+     * @throws IOException
+     */
+    public static boolean writeExtractedPeptideMatchesToDisk(RovFile rovFile, File outputLocationFolder, OutputFormatter outputFormatter) throws IOException {
+        //writeHeaderToDisk(rovFile.getParsedData().getHeader(),outputLocationFolder);
+        String outputString = outputFormatter.formatPeptideMatches(rovFile);
+        File outputFile = new File(outputLocationFolder, MessageFormat.format("{0}.natter_output", rovFile.getName()));
+        if (outputFile.exists()) {
+            outputFile = new File(String.format("%s_%s.natter_output", outputFile.getAbsolutePath(), Calendar.getInstance().getTimeInMillis()));
+        }
+        OutputStreamWriter outputWriter = new OutputStreamWriter(new FileOutputStream(outputFile), Charset.forName(ENCODING).newEncoder());
+        try {
+            outputWriter.write(outputString);
+        }
+        finally {
+            outputWriter.close();
+        }
+        return true;
     }
 
     /**
      * writes a list of Distiller files to the temp dir
+     *
      * @param rovFiles list of Distiller files to write the data from
      * @return true if succeeded
      * @throws IOException
@@ -255,12 +320,78 @@ public class FileDAO {
         return writeExtractedDataToDisk(rovFiles, NATTERTEMPDIR);
     }
 
+    /**
+     * writes the extracted data of a list of distiller files to disk using the
+     * {@code CSVOutputFormatterForDistillerFile} as formatter
+     *
+     * @param rovFiles list of distiller files to process
+     * @param outputLocationFolder the folder to write to
+     * @return true if the write to disk succeeded, false if even a portion were
+     * not able to write correctly
+     * @throws IOException contains a list of the names of the distiller files
+     * that failed
+     */
     public static boolean writeExtractedDataToDisk(List<RovFile> rovFiles, File outputLocationFolder) throws IOException {
+        return writeExtractedDataToDisk(rovFiles, outputLocationFolder, new CSVOutputFormatterForDistillerFile(";"));
+    }
+
+    /**
+     *
+     * @param rovFiles
+     * @param outputLocationFolder
+     * @param outputFormatter
+     * @return
+     * @throws IOException
+     */
+    public static boolean writeExtractedDataToDisk(List<RovFile> rovFiles, File outputLocationFolder, OutputFormatter outputFormatter) throws IOException {
         boolean success = false;
+        //sometimes it happens that there are identical named files in the same project, clean this up
         Set<String> failedFiles = new HashSet<String>(rovFiles.size());
+        if (!outputLocationFolder.exists()) {
+            if (!outputLocationFolder.mkdirs()) {
+                throw new IOException("could not make parentfolders");
+            }
+        }
         for (RovFile rovFile : rovFiles) {
             try {
-                if (!writeExtractedDataToDisk(rovFile)) {
+                if (!writeExtractedDataToDisk(rovFile, outputLocationFolder, outputFormatter)) {
+                    failedFiles.add(rovFile.getName());
+                }
+            }
+            catch (IOException ioe) {
+                logger.error(ioe);
+                failedFiles.add(rovFile.getName());
+            }
+        }
+        if (failedFiles.isEmpty()) {
+            success = true;
+        } else {
+            throw new IOException(MessageFormat.format("these files could not be written to disk {0}", failedFiles.toString()));
+        }
+        return success;
+    }
+
+    /**
+     * writes all the peptide matches in a list of distiller files to disk
+     *
+     * @param rovFiles a list of distiller files to write to disk
+     * @param outputLocationFolder the location to write the files to
+     * @param outputFormatter
+     * @return
+     * @throws IOException
+     */
+    public static boolean writeExtractedPeptideMatchesToDisk(List<RovFile> rovFiles, File outputLocationFolder, OutputFormatter outputFormatter) throws IOException {
+        boolean success = false;
+        //sometimes it happens that there are identical named files in the same project, clean this up
+        Set<String> failedFiles = new HashSet<String>(rovFiles.size());
+        if (!outputLocationFolder.exists()) {
+            if (!outputLocationFolder.mkdirs()) {
+                throw new IOException("could not make parent folders");
+            }
+        }
+        for (RovFile rovFile : rovFiles) {
+            try {
+                if (!writeExtractedPeptideMatchesToDisk(rovFile, outputLocationFolder, outputFormatter)) {
                     failedFiles.add(rovFile.getName());
                 }
             }
@@ -279,17 +410,17 @@ public class FileDAO {
 
     /**
      * writes the header from Distiller files to disk
+     *
      * @param header the header from the extracted data from a Distiller file
      * @throws IOException
      */
-    private static void writeHeaderToDisk(Header header) throws IOException {
-
-
+    private static void writeHeaderToDisk(Header header, File outputLocationFolder) throws IOException {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
     /**
      * gets the (unzipped) file content from a specified file
+     *
      * @param file the file to get the contents from
      * @return a list containing all the entries in the archive, or a list with
      * a single entry if the file is not zipped
@@ -308,9 +439,22 @@ public class FileDAO {
      * @throws IOException
      */
     public static byte[] fileContentToByteArray(File file) throws IOException {
+        byte[] toReturn;
         ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-        IOUtils.copy(new FileReader(file), byteArrayOutputStream, Charset.forName("UTF-8"));
-        return byteArrayOutputStream.toByteArray();
+        InputStreamReader fileReader = new InputStreamReader(new FileInputStream(file), Charset.forName(ENCODING).newDecoder());
+        try {
+            try {
+                IOUtils.copy(fileReader, byteArrayOutputStream, Charset.forName(ENCODING));
+            }
+            finally {
+                fileReader.close();
+            }
+        }
+        finally {
+            toReturn = byteArrayOutputStream.toByteArray();
+        }
+        byteArrayOutputStream.close();
+        return toReturn;
     }
 
     /**
@@ -333,9 +477,15 @@ public class FileDAO {
     }
 
     private static boolean checkIfByteArrayIsGZipped(byte[] zippedFileContent) {
-        return magicGzipHexString.equals(new String(Arrays.copyOfRange(zippedFileContent, 0, 1)));
+        return magicGzipHexString.equals(new String(Arrays.copyOfRange(zippedFileContent, 0, 1), Charset.forName(ENCODING)));
     }
 
+    /**
+     * shift bytes to hex values
+     *
+     * @param bytes the byte array to change
+     * @return the reprsentation of the byte array in hex characters
+     */
     public static String bytesToHex(byte[] bytes) {
         char[] hexChars = new char[bytes.length * 2];
         int v;
@@ -345,9 +495,5 @@ public class FileDAO {
             hexChars[j * 2 + 1] = hexArray[v & 0x0F];
         }
         return new String(hexChars);
-    }
-
-    private static void writeOutputToDisk(String outputString) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 }

@@ -2,7 +2,9 @@ package com.compomics.natter_remake.model;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  *
@@ -16,7 +18,9 @@ public class RovFileData {
     private List<Protein> proteinHits = new ArrayList<Protein>();
     List<Peptide> peptideHits = new ArrayList<Peptide>();
     private Header header = new Header();
+    private Map<Integer,Peptide> peptideQueryMap = new HashMap<Integer,Peptide>();
     private List<RawFile> rawFiles = new ArrayList<RawFile>();
+    private String lcRunName;
 
     public String getFileName() {
         return fileName;
@@ -69,5 +73,17 @@ public class RovFileData {
     
     public List<RawFile> getRawFiles(){
         return Collections.unmodifiableList(rawFiles);
+    }
+
+    public void addPeptideQuery(Peptide parsedPeptide) {
+        peptideQueryMap.put(parsedPeptide.getPeptideNumber(),parsedPeptide);
+    }
+
+    public void setLcRunName(String lcRunForFileName) {
+        this.lcRunName = lcRunForFileName;
+    }
+    
+    public String getLcRunName(){
+        return lcRunName;
     }
 }

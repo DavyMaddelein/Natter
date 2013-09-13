@@ -1,51 +1,56 @@
 package com.compomics.natter_remake.controllers.output;
 
-import com.compomics.natter_remake.model.Intensity;
 import com.compomics.natter_remake.model.PeptideMatch;
 import com.compomics.natter_remake.model.PeptidePartner;
 import com.compomics.natter_remake.model.Protein;
+import com.compomics.natter_remake.model.RovFile;
 import com.compomics.natter_remake.model.RovFileData;
 
 /**
  *
  * @author Davy
  */
-public class OutputFormatter {
+public abstract class OutputFormatter {
 
-    public static String formatForCSV(RovFileData data) {
+    protected final String SEPARATOR;
+
+    public OutputFormatter(String separator) {
+        SEPARATOR = separator;
+    }
+
+    final public String formatData(RovFile rovFile) {
         StringBuilder outputString = new StringBuilder();
-        for (Protein protein : data.getProteinHits()) {
-            outputString.append(formatPeptideMatchesForProtein(protein));
+        outputString.append(formatHeaderLine()).append("\n");
+        for (Protein protein : rovFile.getParsedData().getProteinHits()) {
+            outputString.append(formatPeptideMatchesForProtein(protein,rovFile.getName()));
         }
         return outputString.toString();
-
     }
 
-    private static String formatPeptideMatchesForProtein(Protein protein) {
-        StringBuilder peptideMatchOutputString = new StringBuilder();
-        for (PeptideMatch peptideMatch : protein.getPeptideMatches()) {
-            peptideMatchOutputString.append(protein.getAccession()).append(';');
-            peptideMatchOutputString.append(peptideMatch.getPeptideSequence());
-            peptideMatchOutputString.append(formatPeptidePartnersForMatch(peptideMatch));
+    final public String formatPeptideMatches(RovFile rovFile) {
+        StringBuilder outputString = new StringBuilder();
+        outputString.append(formatPeptideMatchHeaderLine()).append("\n");
+        for (PeptideMatch peptideMatch : rovFile.getParsedData().getPeptideMatchList()) {
+            outputString.append(formatPeptideMatch(peptideMatch,rovFile.getName()));
         }
-        return peptideMatchOutputString.toString();
+        return outputString.toString();
     }
 
-    private static String formatPeptidePartnersForMatch(PeptideMatch peptideMatch) {
-        StringBuilder peptidePartnerOutputString = new StringBuilder();
-        for (PeptidePartner partner : peptideMatch.getPeptidePartners()) {
-            peptidePartnerOutputString.append(';').append(partner.getComponent()).append(';');
-            peptidePartnerOutputString.append(formatPartnerIntensitiesForPartner(partner));
-        }
-        peptidePartnerOutputString.append('\n');
-        return peptidePartnerOutputString.toString();
+    private String formatHeaderLine() {
+        String headerLine = "accession;sequence;ratio;lcrun_name;mod_seq_file;composition;identificationid;spectrumid;datfileid;datfile_query;accession;start;end;enzymatic;sequence;modified_sequence;score;homology;exmp_mass;cal_mass;light_isotope;heavy_isotope;valid;Description;identitythreshold;confidence;DB;title;precursor;charge;isoforms;db_filename;intensity@retention time;mod_seq_file;composition;identificationid;spectrumid;datfileid;datfile_query;accession;start;end;enzymatic;sequence;modified_sequence;score;homology;exmp_mass;cal_mass;light_isotope;heavy_isotope;valid;Description;identitythreshold;confidence;DB;title;precursor;charge;isoforms;db_filename;intensity@retention time";       
+        return headerLine;
     }
 
-    private static String formatPartnerIntensitiesForPartner(PeptidePartner partner) {
-        StringBuilder intensityOutputString = new StringBuilder();
-        for (Intensity measuredIntensity : partner.getIntensitiesForPartner()) {
-            intensityOutputString.append(measuredIntensity.getValue()).append('@').append(measuredIntensity.getRetentionTime());
-        }
-        return intensityOutputString.toString();
+    private String formatPeptideMatchHeaderLine() {
+        String headerLine = "sequence;ratio;lcrun_name;mod_seq_file;composition;identificationid;spectrumid;datfileid;datfile_query;accession;start;end;enzymatic;sequence;modified_sequence;score;homology;exmp_mass;cal_mass;light_isotope;heavy_isotope;valid;Description;identitythreshold;confidence;DB;title;precursor;charge;isoforms;db_filename;intensity@retention time;mod_seq_file;composition;identificationid;spectrumid;datfileid;datfile_query;accession;start;end;enzymatic;sequence;modified_sequence;score;homology;exmp_mass;cal_mass;light_isotope;heavy_isotope;valid;Description;identitythreshold;confidence;DB;title;precursor;charge;isoforms;db_filename;intensity@retention time";
+        return headerLine;
     }
+
+    protected abstract String formatPeptideMatchesForProtein(Protein protein,String rovFileName);
+
+    protected abstract String formatPeptidePartnersForMatch(PeptideMatch peptideMatch,String rovFileName);
+
+    protected abstract String formatPartnerIntensitiesForPartner(PeptidePartner partner);
+
+    protected abstract String formatPeptideMatch(PeptideMatch peptideMatch,String rovFileName);
 }

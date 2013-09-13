@@ -10,6 +10,10 @@ import java.io.Reader;
  */
 public class InvalidXMLCharacterFilterReader extends FilterReader {
 
+    /**
+     * 
+     * @param in 
+     */
     public InvalidXMLCharacterFilterReader(Reader in) {
         super(in);
     }
@@ -32,28 +36,28 @@ public class InvalidXMLCharacterFilterReader extends FilterReader {
         StringBuilder builder = new StringBuilder();
         int count = 0;
         count = in.read(buf, from, len);
-        if (count == -1) {
-            return -1;
-        }
+        if(count != -1) {
 
-        for (int i = 0; i < buf.length; i++) {
-            if (!isBadXMLChar(buf[i])) {
-                builder.append(buf[i]);
+            for (int i = 0; i < buf.length; i++) {
+                if (!isBadXMLChar(buf[i])) {
+                    builder.append(buf[i]);
+                }
             }
+            buf = builder.toString().toCharArray();
         }
-        buf = builder.toString().toCharArray();
         return count;
     }
 
     private boolean isBadXMLChar(char c) {
+        boolean badXML = true;
         if ((c == 0x9)
                 || (c == 0xA)
                 || (c == 0xD)
                 || ((c >= 0x20) && (c <= 0xD7FF))
                 || ((c >= 0xE000) && (c <= 0xFFFD))
                 || ((c >= 0x10000) && (c <= 0x10FFFF))) {
-            return false;
+            badXML = false;
         }
-        return true;
+        return badXML;
     }
 }
