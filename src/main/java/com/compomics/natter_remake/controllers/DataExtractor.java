@@ -54,6 +54,17 @@ public class DataExtractor {
         return rovFiles;
     }
 
+    /**
+     * extracts the data in distiller files connected to a given liquid chromatography run
+     * @param lcrun the liquid chromatography run
+     * @return a {@code List} of distiller file objects
+     * @throws UnsupportedEncodingException
+     * @throws FileNotFoundException
+     * @throws IOException
+     * @throws ParserConfigurationException
+     * @throws XMLStreamException
+     * @throws SQLException
+     */
     public static List<RovFile> extractDataInMem(LcRun lcrun) throws UnsupportedEncodingException, FileNotFoundException, IOException, ParserConfigurationException, XMLStreamException, SQLException {
         InputStreamReader rovFileInputStreamReader;
         List<RovFile> rovFiles = DbDAO.downloadRovFilesInMemoryForLcrun(lcrun);

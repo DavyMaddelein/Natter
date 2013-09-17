@@ -1,36 +1,34 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package com.compomics.natter_remake.controllers.output;
 
 import com.compomics.natter_remake.model.Intensity;
 import com.compomics.natter_remake.model.PeptideMatch;
 import com.compomics.natter_remake.model.PeptidePartner;
 import com.compomics.natter_remake.model.Protein;
-import com.compomics.natter_remake.model.RovFile;
 
 /**
  *
  * @author Davy
  */
 public class CSVOutputFormatterForDistillerFile extends OutputFormatter {
+//TODO this class has not been finished 
 
     public CSVOutputFormatterForDistillerFile(String separator) {
         super(separator);
     }
 
-    protected String formatPeptideMatchesForProtein(Protein protein,RovFile rovFile) {
+    @Override
+    protected String formatPeptideMatchesForProtein(Protein protein, String rovFileName) {
         StringBuilder peptideMatchOutputString = new StringBuilder();
         for (PeptideMatch peptideMatch : protein.getPeptideMatches()) {
             peptideMatchOutputString.append(protein.getAccession()).append(SEPARATOR);
             peptideMatchOutputString.append(peptideMatch.getPeptideSequence());
-            peptideMatchOutputString.append(formatPeptidePartnersForMatch(peptideMatch));
+            peptideMatchOutputString.append(formatPeptidePartnersForMatch(peptideMatch, rovFileName));
         }
         return peptideMatchOutputString.toString();
     }
 
-    protected String formatPeptidePartnersForMatch(PeptideMatch peptideMatch) {
+    @Override
+    protected String formatPeptidePartnersForMatch(PeptideMatch peptideMatch, String rovFileName) {
         StringBuilder peptidePartnerOutputString = new StringBuilder();
         for (PeptidePartner partner : peptideMatch.getPeptidePartners()) {
             //peptidePartnerOutputString.append(SEPARATOR).append(partner.getModifiedSequence());
@@ -41,6 +39,7 @@ public class CSVOutputFormatterForDistillerFile extends OutputFormatter {
         return peptidePartnerOutputString.toString();
     }
 
+    @Override
     protected String formatPartnerIntensitiesForPartner(PeptidePartner partner) {
         StringBuilder intensityOutputString = new StringBuilder();
         intensityOutputString.append(SEPARATOR);
@@ -48,16 +47,6 @@ public class CSVOutputFormatterForDistillerFile extends OutputFormatter {
             intensityOutputString.append(measuredIntensity.getValue()).append('@').append(measuredIntensity.getRetentionTime());
         }
         return intensityOutputString.toString();
-    }
-
-    @Override
-    protected String formatPeptideMatchesForProtein(Protein protein, String rovFileName) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
-
-    @Override
-    protected String formatPeptidePartnersForMatch(PeptideMatch peptideMatch, String rovFileName) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
     @Override

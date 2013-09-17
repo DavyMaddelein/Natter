@@ -11,8 +11,8 @@ import java.io.Reader;
 public class InvalidXMLCharacterFilterReader extends FilterReader {
 
     /**
-     * 
-     * @param in 
+     * constructor
+     * @param in the reader to fix the improper xml input for
      */
     public InvalidXMLCharacterFilterReader(Reader in) {
         super(in);

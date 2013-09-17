@@ -7,8 +7,6 @@ import com.compomics.natter_remake.model.PeptideMatch;
 import com.compomics.natter_remake.model.PeptidePartner;
 import com.compomics.natter_remake.model.Protein;
 import java.sql.SQLException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  *
@@ -23,6 +21,9 @@ public class CSVOutputFormatterForMsLims extends OutputFormatter {
         this.lcrun = project;
     }
 
+    /**
+     * {@inheritDoc }
+     */
     @Override
     protected String formatPeptideMatch(PeptideMatch peptideMatch, String rovFileName) {
         StringBuilder peptideMatchOutputString = new StringBuilder();
@@ -34,6 +35,9 @@ public class CSVOutputFormatterForMsLims extends OutputFormatter {
         return peptideMatchOutputString.toString();
     }
 
+    /**
+     * {@inheritDoc }
+     */
     @Override
     protected String formatPeptideMatchesForProtein(Protein protein, String rovFileName) {
         StringBuilder peptideMatchOutputString = new StringBuilder();
@@ -47,9 +51,14 @@ public class CSVOutputFormatterForMsLims extends OutputFormatter {
         return peptideMatchOutputString.toString();
     }
 
+    /**
+     * {@inheritDoc }
+     */
+    @Override
     protected String formatPeptidePartnersForMatch(PeptideMatch peptideMatch, String rovFileName) {
         StringBuilder peptidePartnerOutputString = new StringBuilder();
         for (PeptidePartner partner : peptideMatch.getPeptidePartners()) {
+            //TODO look at this part, this handles the modifications and modifying the sequence but is not working correctly
             //peptidePartnerOutputString.append(partner.isPartnerFound()).append(SEPARATOR);
             //if (!partner.getPeptidesLinkedToPartner().isEmpty()) {
             //peptidePartnerOutputString.append("true").append(SEPARATOR);
@@ -78,6 +87,10 @@ public class CSVOutputFormatterForMsLims extends OutputFormatter {
         return peptidePartnerOutputString.toString();
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     protected String formatPartnerIntensitiesForPartner(PeptidePartner partner) {
         StringBuilder intensityOutputString = new StringBuilder();
         for (Intensity measuredIntensity : partner.getIntensitiesForPartner()) {

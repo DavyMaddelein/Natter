@@ -21,8 +21,8 @@ public class DbDAO {
     /**
      * get all the projects in memory for the established connection
      *
-     * @param project the project to get the data for
-     * @return a List containing the distiller files for that project
+     * @param project the {@code Project} to get the data for
+     * @return a {@code List} containing the distiller files for that project
      * @throws SQLException if there was a problem with the retrieval of the
      * distiller files
      * @throws IOException
@@ -49,10 +49,10 @@ public class DbDAO {
 
     /**
      * download the distiller files to disc in the OS_temp_dir/natter_rov_files,
-     * these have DeleteOnExit=true
+     * these will be removed on program termination
      *
-     * @param project the project to get the distiller files for
-     * @return a List containing the Files
+     * @param project the {@code Project} to get the distiller files for
+     * @return a {@code List} containing the Files
      * @throws SQLException
      * @throws NullPointerException
      * @throws FileNotFoundException
@@ -63,12 +63,11 @@ public class DbDAO {
     }
 
     /**
-     * download the distiller files to disc in the specified dir, these have
-     * DeleteOnExit=true
+     * download the distiller files to disc in the specified dir, these will be removed on program termination
      *
      * @param project the project to get the distiller files for
      * @param rovFileOutputLocationFolder the folder to download the files in
-     * @return a List containing the Files
+     * @return a {@code List} containing the Files
      * @throws SQLException
      * @throws NullPointerException
      * @throws FileNotFoundException
@@ -85,7 +84,7 @@ public class DbDAO {
      * @param rovFileOutputLocationFolder the folder to download the files in
      * @param deleteOnExit if the files should be deleted after program
      * termination
-     * @return a List containing the Files
+     * @return a {@code List} containing the Files
      * @throws SQLException
      * @throws NullPointerException
      * @throws FileNotFoundException
@@ -146,7 +145,7 @@ public class DbDAO {
      * get all the quantitanion_fileids for a given project from the db
      *
      * @param project the project to get the quantitation_fileids for
-     * @return a List with the Ids
+     * @return a {@code List} with the Ids
      * @throws SQLException
      */
     public static List<Integer> getQuantitationFileIdsForProject(Project project) throws SQLException {
@@ -172,7 +171,7 @@ public class DbDAO {
     /**
      * get all the projects from the database
      *
-     * @return a List containing all the projects
+     * @return a {@code List} containing all the projects
      * @throws SQLException
      */
     public static List<Project> getAllProjects() throws SQLException {
@@ -194,7 +193,13 @@ public class DbDAO {
         }
         return projects;
     }
-
+/**
+ * simple check if the peptide sequence was found in the project
+ * @param peptideSequence the sequence to check
+ * @param projectNumber the project number to check in
+ * @return true if found, false otherwise
+ * @throws SQLException 
+ */
     public static boolean checkIfPeptideIsIdentified(String peptideSequence, int projectNumber) throws SQLException {
         boolean identified = false;
         PreparedStatement stat = DbConnectionController.getConnection().prepareStatement("select count(identification.*) from spectrum,identification where l_projectid = ? and l_spectrumid = spectrumid and sequence = ?");
@@ -216,9 +221,15 @@ public class DbDAO {
         }
         return identified;
     }
-
+/**
+ * create a project object from a given projectid
+ * @param projectId the project number in the database
+ * @return a {@code Project} representation of the project in the db
+ * @throws SQLException 
+ */
     public static Project getProjectForProjectId(int projectId) throws SQLException {
         Project project;
+        //TODO add search on name?
         PreparedStatement stat = DbConnectionController.getConnection().prepareStatement("select project.title from project,lcrun where projectid = ? and l_projectid = projectid");
         try {
             stat.setInt(1, projectId);
@@ -237,6 +248,13 @@ public class DbDAO {
         return project;
     }
 
+    /**
+     * retrieves and adds the liquid chromatography runs for a project
+     *
+     * @param project the project to get and add the liquid chromatography runs
+     * for
+     * @throws SQLException
+     */
     public static void addLcRunsToProject(Project project) throws SQLException {
         PreparedStatement stat = null;
         try {
@@ -259,6 +277,17 @@ public class DbDAO {
         }
     }
 
+    /**
+     * get the liquid chromatography run from ms-lims where the peptide was
+     * found in
+     *
+     * @param peptideSequence the sequence of the peptide
+     * @param projectId the project to look in
+     * @return a concatenated, comma separated {@code String} containing all the
+     * liquid chromatography run names containing the peptide sequence for a
+     * given project
+     * @throws SQLException
+     */
     public static String getLcRunForPeptideInProject(String peptideSequence, int projectId) throws SQLException {
         StringBuilder lcrunName = new StringBuilder();
         PreparedStatement stat = DbConnectionController.getConnection().prepareStatement("select distinct lcrun.name from spectrum,identification,lcrun where lcrunid = l_lcrunid and spectrum.l_projectid = ? and l_spectrumid = spectrumid and sequence = ?");
@@ -298,7 +327,7 @@ public class DbDAO {
     }
 
     /**
-     * get the identiication for a sequence recorded in a project
+     * get the identification for a sequence recorded in a project
      *
      * @param peptideSequence the sequence to retrieve the identification data
      * for
@@ -318,6 +347,7 @@ public class DbDAO {
             ResultSet rs = stat.executeQuery();
             try {
                 if (!rs.next()) {
+                    //becausse for loops are for wusses
                     result.append(separator);
                     result.append(separator);
                     result.append(separator);
@@ -383,6 +413,15 @@ public class DbDAO {
         return result.toString();
     }
 
+    /**
+     * download distiller files from the database and keep them in memory for a
+     * given liquid chromatography run
+     *
+     * @param lcrun the liquid chromatography run to retrieve for
+     * @return a <@code List> containing the retrieved distiller files
+     * @throws SQLException
+     * @throws IOException
+     */
     static List<RovFile> downloadRovFilesInMemoryForLcrun(LcRun lcrun) throws SQLException, IOException {
         List<RovFile> files = new ArrayList<RovFile>();
         PreparedStatement stat = DbConnectionController.getConnection().prepareStatement(new StringBuilder().append("select distinct qf.filename, qf.file from (select distinct q.l_quantitation_fileid as temp from identification as i, spectrum as f , identification_to_quantitation as t, quantitation_group as q where i.l_spectrumid = f.spectrumid and f.l_lcrunid = ").append(lcrun.getLcRunDbNumber()).append(" and i.identificationid = t.l_identificationid and t.l_quantitation_groupid = q.quantitation_groupid) as linker, quantitation_file as qf where linker.temp = qf.quantitation_fileid").toString());

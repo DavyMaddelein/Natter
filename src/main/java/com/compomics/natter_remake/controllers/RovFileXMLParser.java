@@ -31,6 +31,13 @@ import javax.xml.stream.events.XMLEvent;
  */
 public class RovFileXMLParser {
 
+    //TODO this can be split up in classes for each big block in the constructor to help with readability and future iterations
+    
+    /**
+     * {@docRoot all the methods that take a {@code XMLEventReader} work on the first block of what they are meant to parse. They move the {@code XMLEventReader} pointer to just past the block of xml they parsed
+     * in some methods assumptions are made about the location of the pointer and if a line has been read or not
+     * }
+     */
     private XMLEvent rovFileLine;
     private RovFileData data;
     private Iterator<Attribute> XMLAttributes;
@@ -39,6 +46,12 @@ public class RovFileXMLParser {
     private Map<Integer, PeptideGroup> peptideHitIdToPeptideGroup = new HashMap<Integer, PeptideGroup>(500);
     private Map<Integer, Modification> modificationsInFile = new HashMap<Integer, Modification>();
 
+    /**
+     * parsing constructor, parses the distiller xml file
+     *
+     * @param rovFileXMLReader the distiller xml event reader to parse
+     * @throws XMLStreamException
+     */
     public RovFileXMLParser(XMLEventReader rovFileXMLReader) throws XMLStreamException {
         data = new RovFileData();
         while (rovFileXMLReader.hasNext()) {
@@ -65,6 +78,13 @@ public class RovFileXMLParser {
         }
     }
 
+    /**
+     * parse a peptide xml block
+     *
+     * @param rovFileXMLReader the distiller reader
+     * @return a distiller {@code Peptide}
+     * @throws XMLStreamException
+     */
     private Peptide parsePeptide(XMLEventReader rovFileXMLReader) throws XMLStreamException {
         Peptide peptide = new Peptide();
         while (rovFileXMLReader.hasNext()) {
@@ -93,6 +113,12 @@ public class RovFileXMLParser {
         return peptide;
     }
 
+    /**
+     * parse the headers of a distiller xml file
+     *
+     * @param rovFileXMLReader
+     * @throws XMLStreamException
+     */
     private void parseHeader(XMLEventReader rovFileXMLReader) throws XMLStreamException {
         while (rovFileXMLReader.hasNext()) {
             rovFileLine = rovFileXMLReader.nextEvent();
@@ -152,6 +178,12 @@ public class RovFileXMLParser {
         }
     }
 
+    /**
+     * get the numbers of found instances from the header
+     *
+     * @param rovFileLine the line containing the counts
+     * @throws XMLStreamException
+     */
     private void parseCounters(XMLEvent rovFileLine) throws XMLStreamException {
         XMLAttributes = rovFileLine.asStartElement().getAttributes();
         while (XMLAttributes.hasNext()) {
@@ -166,6 +198,14 @@ public class RovFileXMLParser {
         }
     }
 
+    /**
+     * parses the peptide grouping block
+     *
+     * @param rovFileXMLReader
+     * @return a {@code List} of {@code PeptideGroup}s from the distiller xml
+     * file
+     * @throws XMLstreamException
+     */
     private List<PeptideGroup> parsePeptideGroups(XMLEventReader rovFileXMLReader) throws XMLStreamException {
         List<PeptideGroup> peptideGroups = new ArrayList<PeptideGroup>();
         while (rovFileXMLReader.hasNext()) {
@@ -188,6 +228,14 @@ public class RovFileXMLParser {
         return peptideGroups;
     }
 
+    /**
+     * parses the peptides in a peptide group block
+     *
+     * @param rovFileXMLReader the xml reader for the distiller xml file
+     * @return a {@code List} of {@code Peptide}s parsed from the peptidegroup
+     * block
+     * @throws XMLStreamException
+     */
     private List<Peptide> parsePeptideGroupPeptides(XMLEventReader rovFileXMLReader) throws XMLStreamException {
         List<Peptide> parsedPeptides = new ArrayList<Peptide>(20);
         while (rovFileXMLReader.hasNext()) {
@@ -226,6 +274,13 @@ public class RovFileXMLParser {
         return parsedPeptides;
     }
 
+    /**
+     * reads a {@code PeptideMatch} block from a distiller file xml
+     *
+     * @param rovFileXMLReader the distiller xml reader to read from
+     * @return a {@code PeptideMatch}
+     * @throws XMLStreamException
+     */
     private PeptideMatch parsePeptideMatch(XMLEventReader rovFileXMLReader) throws XMLStreamException {
         PeptideMatch peptideMatch = new PeptideMatch();
         parsePeptideMatchHeader(peptideMatch);
@@ -251,6 +306,12 @@ public class RovFileXMLParser {
         return peptideMatch;
     }
 
+    /**
+     * parses and adds the data from the header to the {@code PeptideMatch}
+     *
+     * @param peptideMatch the {@code PeptideMatch} to add the header to
+     * @throws XMLStreamException
+     */
     private void parsePeptideMatchHeader(PeptideMatch peptideMatch) throws XMLStreamException {
         XMLAttributes = rovFileLine.asStartElement().getAttributes();
         while (XMLAttributes.hasNext()) {
@@ -269,6 +330,13 @@ public class RovFileXMLParser {
         }
     }
 
+    /**
+     * puts all the intensities from an intensity xml block
+     *
+     * @param rovFileXMLReader the distiller xml reader
+     * @param intensitiesOfPartner the {@code IntensityList} to fill
+     * @throws XMLStreamException
+     */
     private void fillIntensityListForPartner(XMLEventReader rovFileXMLReader, IntensityList intensitiesOfPartner) throws XMLStreamException {
         parseXICForPartner(rovFileLine, intensitiesOfPartner);
         while (rovFileXMLReader.hasNext()) {
@@ -295,6 +363,13 @@ public class RovFileXMLParser {
         }
     }
 
+    /**
+     * parses a {@code PeptidePartner} block from a distiller xml file reader
+     *
+     * @param rovFileXMLReader the distiller xml file to read from
+     * @return a {@code PeptidePartner}
+     * @throws XMLStreamException
+     */
     private PeptidePartner parsePeptidePartner(XMLEventReader rovFileXMLReader) throws XMLStreamException {
         PeptidePartner partner = new PeptidePartner();
         XMLAttributes = rovFileLine.asStartElement().getAttributes();
@@ -333,6 +408,11 @@ public class RovFileXMLParser {
         return partner;
     }
 
+    /**
+     * links {@code PeptideMatch}es that are connected to the {@code PeptidePartner} and adds them
+     * @param peptidePartner the {@code PeptidePartner} to parse the {@code PeptideMatch}es for that are connected to it
+     * @throws XMLStreamException
+     */
     private void parseMatchesForPartner(PeptidePartner peptidePartner) throws XMLStreamException {
         XMLAttributes = rovFileLine.asStartElement().getAttributes();
         while (XMLAttributes.hasNext()) {
@@ -345,6 +425,13 @@ public class RovFileXMLParser {
         }
     }
 
+    /**
+     * parses a {@code ChargeState} block from a distiller xml file reader
+     *
+     * @param rovFileXMLReader the reader to parse from
+     * @return a {@code ChargeState}
+     * @throws XMLStreamException
+     */
     private ChargeState parseChargestateForPeptideMatch(XMLEventReader rovFileXMLReader) throws XMLStreamException {
         ChargeState chargeState = new ChargeState();
         XMLAttributes = rovFileLine.asStartElement().getAttributes();
@@ -384,6 +471,14 @@ public class RovFileXMLParser {
         return chargeState;
     }
 
+    /**
+     * parses a XML attribute iterator and fills up the given {@code Ratio}
+     * object
+     *
+     * @param XMLAttributes the {@code Attribute Iterator} to parse
+     * @param ratio the {@code Ratio} to fill up
+     * @return the {@code Ratio} that was the arg
+     */
     private Ratio parseAndAddDataToRatio(Iterator<Attribute> XMLAttributes, Ratio ratio) {
         while (XMLAttributes.hasNext()) {
             Attribute attribute = XMLAttributes.next();
@@ -402,6 +497,13 @@ public class RovFileXMLParser {
         return ratio;
     }
 
+    /**
+     * parses a {@code HitRatio} block in a distiller xml file
+     *
+     * @param rovFileXMLReader the distiller xml file reader
+     * @return a {@code HitRatio}
+     * @throws XMLStreamException
+     */
     private HitRatio parseRatioForPartners(XMLEventReader rovFileXMLReader) throws XMLStreamException {
         HitRatio ratio = new HitRatio();
         XMLAttributes = rovFileLine.asStartElement().getAttributes();
@@ -424,6 +526,13 @@ public class RovFileXMLParser {
         return ratio;
     }
 
+    /**
+     * parses a {@code Protein} block from a distiller xml file
+     *
+     * @param rovFileXMLReader the distiller xml file reader to parse from
+     * @return the {@code Protein}
+     * @throws XMLStreamException
+     */
     private Protein parseProteinHit(XMLEventReader rovFileXMLReader) throws XMLStreamException {
         Protein protein = new Protein();
         if (rovFileLine.asStartElement().getName().getLocalPart().equalsIgnoreCase("proteinhit")) {
@@ -471,6 +580,13 @@ public class RovFileXMLParser {
         return protein;
     }
 
+    /**
+     * parses the XIC peaks from the XIC xml line in a distiller xml file
+     *
+     * @param rovFileLine the xml line to parse
+     * @param intensitiesForPartnter the {@code IntensityList} to add data to
+     * @throws XMLStreamException
+     */
     private void parseXICForPartner(XMLEvent rovFileLine, IntensityList intensitiesForPartnter) throws XMLStreamException {
         XMLAttributes = rovFileLine.asStartElement().getAttributes();
         while (XMLAttributes.hasNext()) {
@@ -489,6 +605,12 @@ public class RovFileXMLParser {
         }
     }
 
+    /**
+     * parses the scan range from a line in the distiller xml file
+     *
+     * @return the {@code ScanRange}
+     * @throws XMLStreamException
+     */
     private ScanRange parseRangesForPartner() throws XMLStreamException {
         XMLAttributes = rovFileLine.asStartElement().getAttributes();
         ScanRange scanRange = new ScanRange();
@@ -517,6 +639,13 @@ public class RovFileXMLParser {
         return data;
     }
 
+    /**
+     * parses the rawfile info from a distiller xml file
+     *
+     * @param rovFileXMLReader the distiller xml file reader
+     * @return the {@code RawFile}
+     * @throws XMLStreamException
+     */
     private RawFile parseRawFile(XMLEventReader rovFileXMLReader) throws XMLStreamException {
         RawFile rawFile = new RawFile();
         while (rovFileXMLReader.hasNext()) {
@@ -543,6 +672,12 @@ public class RovFileXMLParser {
         return rawFile;
     }
 
+    /**
+     * parses the modifications recoreded in a distiller xml file
+     *
+     * @param rovFileXMLReader the distiller xml file reader to parse from
+     * @throws XMLStreamException
+     */
     private void parseModifications(XMLEventReader rovFileXMLReader) throws XMLStreamException {
         int modcounter = 0;
         modificationsInFile.put(modcounter, new Modification());

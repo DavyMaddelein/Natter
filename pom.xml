@@ -42,6 +42,26 @@
                     <outputDirectory>${project.build.directory}/${project.build.finalName}-${project.version}</outputDirectory>
                 </configuration>
             </plugin>
+                        <!-- Dependency plugin -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>copy-dependencies</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>copy-dependencies</goal>
+                        </goals>
+                        <configuration>
+                            <outputDirectory>${project.build.directory}/${project.build.finalName}-${project.version}/lib</outputDirectory>
+                            <overWriteReleases>true</overWriteReleases>
+                            <overWriteSnapshots>true</overWriteSnapshots>
+                            <excludeTransitive>false</excludeTransitive>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
         </plugins>
     </build>
     <dependencies>
@@ -61,7 +81,7 @@
         <dependency>
             <groupId>mysql</groupId>
             <artifactId>mysql-connector-java</artifactId>
-            <version>5.1.21</version>
+            <version>5.1.26</version>
             <type>jar</type>
         </dependency>
         <dependency>
@@ -78,7 +98,8 @@
         <dependency>
             <groupId>com.compomics</groupId>
             <artifactId>utilities</artifactId>
-            <version>3.13.30</version>
+            <version>3.14.42</version>
+            <type>jar</type>
         </dependency>
         <dependency>
             <groupId>org.mockito</groupId>

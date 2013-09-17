@@ -148,8 +148,8 @@ public class FileDAO {
     /**
      * unzips a byte array that is a gzip archive
      *
-     * @param fileContent
-     * @return
+     * @param fileContent the byte array to unzip
+     * @return a {@code List} containing the files in the gzip archive
      * @throws IOException
      */
     public static List<byte[]> unGzipByteArray(byte[] byteArray) throws IOException {
@@ -244,7 +244,7 @@ public class FileDAO {
     }
 
     /**
-     * writes the extracted data to the temp dir
+     * writes the extracted data to the temp dir in CVS form
      *
      * @param rovFile the Distiller file to write the data for
      * @return true if succeeded
@@ -253,7 +253,13 @@ public class FileDAO {
     public static boolean writeExtractedDataToDisk(RovFile rovFile) throws IOException {
         return writeExtractedDataToDisk(rovFile, NATTERTEMPDIR, new CSVOutputFormatterForDistillerFile(";"));
     }
-
+/**
+ * writes the extracted data to the specified folder in CVS form
+ * @param rovFile the distiller file to extract and write the data for
+ * @param outputLocationFolder the folder to output to
+ * @return true if succeeded otherwise false
+ * @throws IOException 
+ */
     public static boolean writeExtractedDataToDisk(RovFile rovFile, File outputLocationFolder) throws IOException {
         return writeExtractedDataToDisk(rovFile, outputLocationFolder, new CSVOutputFormatterForDistillerFile(";"));
     }
@@ -283,7 +289,7 @@ public class FileDAO {
     }
 
     /**
-     * convenience method to get all peptidematches in distiller file
+     * convenience method to get all {@code PeptideMatch}es in distiller file
      *
      * @param rovFile distiller file to process
      * @param outputLocationFolder folder to write in
@@ -310,7 +316,7 @@ public class FileDAO {
     }
 
     /**
-     * writes a list of Distiller files to the temp dir
+     * writes a {@code List} of Distiller files to the temp dir in CVS form
      *
      * @param rovFiles list of Distiller files to write the data from
      * @return true if succeeded
@@ -377,7 +383,7 @@ public class FileDAO {
      * @param rovFiles a list of distiller files to write to disk
      * @param outputLocationFolder the location to write the files to
      * @param outputFormatter
-     * @return
+     * @return true if succeeded false otherwise
      * @throws IOException
      */
     public static boolean writeExtractedPeptideMatchesToDisk(List<RovFile> rovFiles, File outputLocationFolder, OutputFormatter outputFormatter) throws IOException {
@@ -435,7 +441,7 @@ public class FileDAO {
      * reads a file and returns a byte array with the contents
      *
      * @param file file to get the contents from
-     * @return a byte array
+     * @return a {@code byte Array}
      * @throws IOException
      */
     public static byte[] fileContentToByteArray(File file) throws IOException {
